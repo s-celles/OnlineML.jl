@@ -42,8 +42,8 @@ export fit_predict!, score, score_one, is_anomaly, fit_score!
 export update!, status, detected_drift, detected_warning
 export dict_argmax, generate
 
-# Submodules
-export Optim, Linear, Trees, Instance, Bayes, Cluster, Anomaly
-export Transform, Drift, Metrics, Streams, Pipeline, Ensemble
+# Note: Submodules (Optim, Linear, Trees, etc.) are NOT exported.
+# Users access them via: using OnlineML.Linear, using OnlineML.Pipeline, etc.
+# This follows Julia best practices and avoids Aqua.jl undefined export warnings.
 
 end # module OnlineML
