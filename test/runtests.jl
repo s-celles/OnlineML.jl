@@ -96,6 +96,11 @@ using Documenter
         include("namedtuple_test.jl")
     end
 
+    # Code quality checks (Aqua.jl)
+    @testset "Code Quality" begin
+        include("Aqua.jl")
+    end
+
     # Doctests - verify all docstring examples work correctly
     @testset "Doctests" begin
         DocMeta.setdocmeta!(OnlineML, :DocTestSetup, quote
