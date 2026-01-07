@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -31,15 +31,12 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
-        arch:
-          - x64
     steps:
       - uses: actions/checkout@v4
 
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.version }}
-          arch: ${{ matrix.arch }}
 
       - uses: julia-actions/cache@v2
 
@@ -67,6 +64,7 @@ jobs:
           DATADEPS_ALWAYS_ACCEPT: true
         with:
           coverage: ${{ matrix.version == '1' && matrix.os == 'ubuntu-latest' }}
+          compiled_modules: no
 
       - name: Process coverage
         uses: julia-actions/julia-processcoverage@v1
