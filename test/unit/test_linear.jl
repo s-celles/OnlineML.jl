@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Linear
+import OnlineML: Linear
+using .Linear: LogisticRegression, Perceptron, Regression, PassiveAggressive
 
 @testset "Linear Models" begin
     @testset "LogisticRegression" begin

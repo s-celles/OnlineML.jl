@@ -48,6 +48,7 @@ begin
 
     # Create class mapping (string -> int)
     class_names = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
+    # class_names = String.(unique(getproperty.(DataFrame(iris)[!, :targets], :class)))
     class_map = Dict(name => i-1 for (i, name) in enumerate(class_names))
 
     md"Loaded **$(n_samples)** samples from Iris dataset"

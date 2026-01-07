@@ -1,10 +1,8 @@
 using Test
 using OnlineML
-using OnlineML.Cluster
+import OnlineML: Cluster
+using .Cluster: StreamingKMeans, centroids, cluster_sizes
 using OnlineStats
-
-# Import from Cluster submodule to avoid conflicts
-import OnlineML.Cluster: centroids, cluster_sizes
 
 @testset "Contract: Cluster Models" begin
     @testset "StreamingKMeans basic contract" begin

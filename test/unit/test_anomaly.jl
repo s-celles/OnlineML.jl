@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Anomaly
+import OnlineML: Anomaly
+using .Anomaly: LODA, HalfSpaceTrees, RobustRandomCutForest, CutTree
 
 @testset "Anomaly Detection" begin
     @testset "LODA" begin

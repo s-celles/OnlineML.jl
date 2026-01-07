@@ -1,8 +1,9 @@
 using Test
 using OnlineML
-using OnlineML.Streams: SineGenerator, RandomRBFGenerator, ConceptDriftStream
-using OnlineML.Streams: LEDGenerator, AgrawalGenerator, SEAGenerator, HyperplaneGenerator
-using OnlineML.Streams: generate, initialize!
+import OnlineML: Streams
+using .Streams: SineGenerator, RandomRBFGenerator, ConceptDriftStream
+using .Streams: LEDGenerator, AgrawalGenerator, SEAGenerator, HyperplaneGenerator
+using .Streams: generate, initialize!
 using Random
 
 @testset "Generators" begin

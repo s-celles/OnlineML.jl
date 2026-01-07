@@ -2,7 +2,8 @@
 
 using Test
 using OnlineML
-using OnlineML.Anomaly
+import OnlineML: Anomaly
+using .Anomaly: RobustRandomCutForest
 using Random
 
 @testset "RobustRandomCutForest" begin

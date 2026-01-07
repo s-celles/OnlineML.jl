@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Metrics
+import OnlineML: Metrics
+using .Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2, RollingMetric
 
 @testset "Metrics" begin
     @testset "Classification Metrics" begin

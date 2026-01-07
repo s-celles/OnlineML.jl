@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Instance
+import OnlineML: Instance
+using .Instance: KNN
 
 @testset "Instance-Based Models" begin
     @testset "KNN" begin

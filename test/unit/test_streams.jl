@@ -1,10 +1,10 @@
 using Test
 using OnlineML
-using OnlineML.Streams
-using OnlineML.Streams: DataStream, SineGenerator, RandomRBFGenerator
-using OnlineML.Streams: ConceptDriftStream, SEAGenerator, HyperplaneGenerator
-using OnlineML.Streams: LEDGenerator, AgrawalGenerator, generate, iterate_stream
-using OnlineML.Streams: batch_stream, take_stream, skip_stream
+import OnlineML: Streams
+using .Streams: DataStream, SineGenerator, RandomRBFGenerator
+using .Streams: ConceptDriftStream, SEAGenerator, HyperplaneGenerator
+using .Streams: LEDGenerator, AgrawalGenerator, generate, iterate_stream
+using .Streams: batch_stream, take_stream, skip_stream
 using Random
 using Tables
 

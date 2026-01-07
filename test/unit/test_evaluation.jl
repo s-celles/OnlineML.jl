@@ -1,8 +1,9 @@
 using Test
 using OnlineML
-using OnlineML.Metrics
-using OnlineML.Streams: SEAGenerator, HyperplaneGenerator, generate
-using OnlineML.Linear
+import OnlineML: Metrics, Streams, Linear
+using .Metrics: Accuracy, RollingMetric, R2, progressive_val_score, holdout_score
+using .Streams: SEAGenerator, HyperplaneGenerator, generate
+using .Linear: LogisticRegression
 using Random
 
 @testset "Evaluation" begin

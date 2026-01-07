@@ -1,11 +1,12 @@
 using Test
 using OnlineML
-using OnlineML.Metrics
-using OnlineML.Streams: SEAGenerator, HyperplaneGenerator, RandomRBFGenerator
-using OnlineML.Streams: SineGenerator, ConceptDriftStream, generate
-using OnlineML.Linear
-using OnlineML.Trees
-using OnlineML.Ensemble
+import OnlineML: Metrics, Streams, Linear, Trees, Ensemble
+using .Metrics: Accuracy, RollingMetric, R2, MSE, progressive_val_score, holdout_score
+using .Streams: SEAGenerator, HyperplaneGenerator, RandomRBFGenerator
+using .Streams: SineGenerator, ConceptDriftStream, generate
+using .Linear: LogisticRegression
+using .Trees: HoeffdingTree
+using .Ensemble: Bagging
 using Random
 
 @testset "Integration: Evaluation" begin

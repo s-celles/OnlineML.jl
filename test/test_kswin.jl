@@ -2,7 +2,8 @@
 
 using Test
 using OnlineML
-using OnlineML.Drift
+import OnlineML: Drift
+using .Drift: KSWIN, status
 
 @testset "KSWIN" begin
     @testset "Constructor and defaults" begin
