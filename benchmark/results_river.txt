@@ -1,0 +1,10 @@
+# River (Python) Benchmark Results
+# Samples: 100000
+
+LogisticRegression: 87886 obs/sec
+Perceptron: 84954 obs/sec
+LinearRegression: 87946 obs/sec
+HoeffdingTree: 26463 obs/sec
+GaussianNB: 132581 obs/sec
+ADWIN: 387971 obs/sec
+PageHinkley: 1521553 obs/sec

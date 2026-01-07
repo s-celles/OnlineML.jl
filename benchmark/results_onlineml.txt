@@ -1,0 +1,11 @@
+# OnlineML.jl Benchmark Results
+# Generated: 2026-01-07T03:52:10.306
+# Samples: 100000
+
+LogisticRegression: 680534.0959525446 obs/sec (target: 500000)
+Perceptron: 4.207952466295668e6 obs/sec (target: 1000000)
+LinearRegression: 3.0251246585806496e6 obs/sec (target: 1000000)
+HoeffdingTree: 400269.3556591198 obs/sec (target: 100000)
+GaussianNB: 2.500324354576898e6 obs/sec (target: 500000)
+ADWIN: 1.6174074446676828e7 obs/sec (target: 500000)
+DDM: 4.363527196119602e7 obs/sec (target: 1000000)
