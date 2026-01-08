@@ -90,8 +90,9 @@ using Documenter
 
     # NamedTuple input tests (Feature 002)
     @testset "NamedTuple Input" begin
-        using OnlineML.Linear: LogisticRegression, Perceptron
-        using OnlineML.Cluster: StreamingKMeans
+        import OnlineML: Linear, Cluster
+        using .Linear: LogisticRegression, Perceptron
+        using .Cluster: StreamingKMeans
         using Tables
         include("namedtuple_test.jl")
     end
@@ -106,19 +107,20 @@ using Documenter
         DocMeta.setdocmeta!(OnlineML, :DocTestSetup, quote
             using OnlineML
             using OnlineML: fit!, predict, nobs, transform, fit_transform!, reset!, fit_predict!, iterate_table!, value, score, fit_score!
-            using OnlineML.Linear: LogisticRegression, Perceptron, Regression, PassiveAggressive
-            using OnlineML.Cluster: StreamingKMeans, centroids, cluster_sizes
-            using OnlineML.Transform: StandardScaler, MinMaxScaler, MaxAbsScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, MeanImputer, ModeImputer
-            using OnlineML.Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree
-            using OnlineML.Bayes: GaussianNB, MultinomialNB, BernoulliNB
-            using OnlineML.Instance: KNN
-            using OnlineML.Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
-            using OnlineML.Drift: ADWIN, DDM, EDDM, PageHinkley, KSWIN, status
-            using OnlineML.Anomaly: HalfSpaceTrees, RobustRandomCutForest
-            using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, LeveragingBagging
-            using OnlineML.Pipeline: OnlinePipeline
-            using OnlineML.Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
-            using OnlineML.Optim: Adam, Descent, Momentum
+            import OnlineML: Linear, Cluster, Transform, Trees, Bayes, Instance, Metrics, Drift, Anomaly, Ensemble, Pipeline, Streams, Optim
+            using .Linear: LogisticRegression, Perceptron, Regression, PassiveAggressive
+            using .Cluster: StreamingKMeans, centroids, cluster_sizes
+            using .Transform: StandardScaler, MinMaxScaler, MaxAbsScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, MeanImputer, ModeImputer
+            using .Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree
+            using .Bayes: GaussianNB, MultinomialNB, BernoulliNB
+            using .Instance: KNN
+            using .Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
+            using .Drift: ADWIN, DDM, EDDM, PageHinkley, KSWIN, status
+            using .Anomaly: HalfSpaceTrees, RobustRandomCutForest
+            using .Ensemble: AdaptiveRandomForest, Bagging, LeveragingBagging
+            using .Pipeline: OnlinePipeline
+            using .Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
+            using .Optim: Adam, Descent, Momentum
             using Random
             using DataFrames
         end; recursive=true)
