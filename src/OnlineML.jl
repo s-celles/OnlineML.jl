@@ -39,6 +39,7 @@ export DriftStatus, NoDrift, Warning, DriftDetected
 # Re-export interface methods
 export predict, predict_proba, transform, fit_transform!, inverse_transform
 export fit_predict!, score, score_one, is_anomaly, fit_score!
+export fit_batch!
 export update!, status, detected_drift, detected_warning
 export dict_argmax, generate
 

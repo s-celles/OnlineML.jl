@@ -70,6 +70,10 @@ using Documenter
         include("contract/test_transform.jl")
     end
 
+    @testset "Contract: Incremental batches" begin
+        include("contract/test_incremental.jl")
+    end
+
     # Integration tests
     @testset "Integration: Pipeline" begin
         include("integration/test_pipeline.jl")

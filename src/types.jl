@@ -259,6 +259,45 @@ function fit_predict!(learner::UnsupervisedLearner, x)
     return pred
 end
 
+"""
+    fit_batch!(learner, observations)
+
+Consume `observations` exactly once, in iteration order, and update `learner` for
+each observation. For a supervised [`Learner`](@ref), every element must be an
+`(x, y)` tuple. For an [`UnsupervisedLearner`](@ref), every element is treated as
+one feature observation.
+
+Updates are committed observation by observation. If iteration or fitting fails,
+successfully processed observations remain committed; this function does not copy
+or roll back learner state. The return value is `learner` itself.
+
+# Example
+```jldoctest
+julia> model = LogisticRegression();
+
+julia> fit_batch!(model, (([x], x > 0 ? 1 : 0) for x in (-1.0, 1.0)));
+
+julia> nobs(model)
+2
+```
+"""
+function fit_batch!(learner::Learner, observations)
+    for observation in observations
+        if !(observation isa Tuple) || length(observation) != 2
+            throw(ArgumentError("a supervised batch observation must be an (x, y) tuple"))
+        end
+        fit!(learner, observation)
+    end
+    return learner
+end
+
+function fit_batch!(learner::UnsupervisedLearner, observations)
+    for observation in observations
+        fit!(learner, observation)
+    end
+    return learner
+end
+
 # =============================================================================
 # NamedTuple Input Support (Feature 002)
 # =============================================================================
