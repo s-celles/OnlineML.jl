@@ -40,11 +40,20 @@ export DriftStatus, NoDrift, Warning, DriftDetected
 export predict, predict_proba, transform, fit_transform!, inverse_transform
 export fit_predict!, score, score_one, is_anomaly, fit_score!
 export fit_batch!
+export learnapi
 export update!, status, detected_drift, detected_warning
 export dict_argmax, generate
 
 # Submodules (for convenience access via using OnlineML.Linear, etc.)
 export Optim, Linear, Trees, Instance, Bayes, Cluster, Anomaly
 export Transform, Drift, Metrics, Streams, Pipeline, Ensemble
+
+"""
+    learnapi(learner)
+
+Return a LearnAPI-compatible learner configuration for a supported OnlineML
+learner. Methods are provided by the LearnAPI package extension.
+"""
+function learnapi end
 
 end # module OnlineML

@@ -90,6 +90,10 @@ using Documenter
     @testset "Integration: Examples" begin
         include("integration/test_examples.jl")
     end
+
+    @testset "Integration: LearnAPI extension" begin
+        include("integration/test_learnapi.jl")
+    end
     # include("integration/test_mlj.jl")
 
     # NamedTuple input tests (Feature 002)
