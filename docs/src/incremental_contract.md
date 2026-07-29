@@ -31,3 +31,28 @@ Serialization currently relies on Julia object serialization and is not a stable
 cross-version checkpoint format. Sample weights are not part of the common learner
 contract. Distributed training is unsupported unless a specific state supplies and
 tests a mathematically valid merge operation.
+
+## LearnAPI integration
+
+Loading LearnAPI activates an optional package extension. `learnapi` converts a
+supported, unfitted OnlineML learner into a LearnAPI learner configuration:
+
+```julia
+using LearnAPI
+using OnlineML
+using OnlineML.Bayes: GaussianNB
+
+learner = learnapi(GaussianNB())
+model = LearnAPI.fit(learner, first_observation_stream)
+LearnAPI.update_observations(model, new_observation_stream)
+predictions = LearnAPI.predict(model, LearnAPI.Point(), features)
+```
+
+`update_observations` consumes only the supplied delta. It mutates and returns the
+same fitted model, preserving the OnlineML state accumulated from earlier calls.
+Both fitting operations consume their iterable once and in iteration order.
+
+The extension currently supports `GaussianNB` classification and `Regression`.
+The numeric type of the OnlineML configuration is preserved in the fitted state.
+Passing an already-fitted OnlineML object to `learnapi` is rejected, because a
+LearnAPI learner represents configuration rather than fitted state.
