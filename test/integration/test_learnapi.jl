@@ -1,6 +1,7 @@
 using LearnAPI
 using OnlineML.Bayes: GaussianNB
-using OnlineML.Linear: Regression
+using OnlineML.Linear: LogisticRegression, Regression
+using OnlineML.Optim: Descent
 
 mutable struct LearnAPIOneShot{T}
     data::T
@@ -81,6 +82,72 @@ end
 @testset "LearnAPI Regression rejects fitted configurations" begin
     core = Regression()
     OnlineML.fit!(core, ([0.0], 1.0))
+    @test_throws ArgumentError learnapi(core)
+end
+
+@testset "LearnAPI LogisticRegression preserves configuration and state" begin
+    core = LogisticRegression{Float32}(;
+        optimizer=Descent(0.05),
+        l1=0.01,
+        l2=0.02,
+    )
+    learner = learnapi(core)
+    cloned = LearnAPI.clone(learner; l2=0.03)
+
+    @test learner.optimizer == core.optimizer
+    @test learner.l1 === 0.01f0
+    @test learner.l2 === 0.02f0
+    @test cloned.l1 === learner.l1
+    @test cloned.l2 === 0.03f0
+
+    first_observations = [
+        (Float32[-1, -1], 0),
+        (Float32[1, 1], 1),
+    ]
+    first_batch = LearnAPIOneShot(first_observations, false)
+    model = LearnAPI.fit(learner, first_batch)
+    state = model.state
+
+    @test first_batch.started
+    @test state isa LogisticRegression{Float32}
+    @test state.optimizer == learner.optimizer
+    @test state.l1 === learner.l1
+    @test state.l2 === learner.l2
+    @test OnlineML.nobs(state) == 2
+
+    second_observations = [
+        (Float32[-2, -1], 0),
+        (Float32[2, 1], 1),
+    ]
+    second_batch = LearnAPIOneShot(second_observations, false)
+    returned = LearnAPI.update_observations(model, second_batch)
+
+    expected = LogisticRegression{Float32}(;
+        optimizer=Descent(0.05),
+        l1=0.01,
+        l2=0.02,
+    )
+    OnlineML.fit_batch!(expected, Iterators.flatten((
+        first_observations,
+        second_observations,
+    )))
+
+    @test returned === model
+    @test returned.state === state
+    @test second_batch.started
+    @test OnlineML.nobs(state) == 4
+    @test state.weights ≈ expected.weights
+    @test state.bias ≈ expected.bias
+    @test LearnAPI.predict(
+        model,
+        LearnAPI.Point(),
+        [Float32[-1, -1], Float32[1, 1]],
+    ) == [0, 1]
+end
+
+@testset "LearnAPI LogisticRegression rejects fitted configurations" begin
+    core = LogisticRegression()
+    OnlineML.fit!(core, ([0.0], 0))
     @test_throws ArgumentError learnapi(core)
 end
 

@@ -52,7 +52,9 @@ predictions = LearnAPI.predict(model, LearnAPI.Point(), features)
 same fitted model, preserving the OnlineML state accumulated from earlier calls.
 Both fitting operations consume their iterable once and in iteration order.
 
-The extension currently supports `GaussianNB` classification and `Regression`.
-The numeric type of the OnlineML configuration is preserved in the fitted state.
-Passing an already-fitted OnlineML object to `learnapi` is rejected, because a
-LearnAPI learner represents configuration rather than fitted state.
+The extension currently supports `GaussianNB` classification, `Regression`, and
+`LogisticRegression`. Logistic regression configuration preserves its optimizer
+and regularization strengths. The numeric type of each OnlineML configuration is
+preserved in the fitted state. Passing an already-fitted OnlineML object to
+`learnapi` is rejected, because a LearnAPI learner represents configuration rather
+than fitted state.
