@@ -42,25 +42,10 @@ jobs:
           version: ${{ matrix.version }}
 
       - uses: julia-actions/cache@v3
+        with:
+          cache-compiled: false
 
       - uses: julia-actions/julia-buildpkg@v1
-
-      # Clear any cached compiled artifacts for OnlineML to ensure fresh compilation
-      - name: Clear OnlineML compiled cache
-        shell: bash
-        run: |
-          julia -e '
-            compiled_path = joinpath(first(DEPOT_PATH), "compiled")
-            if isdir(compiled_path)
-              for (root, dirs, files) in walkdir(compiled_path)
-                for f in files
-                  if occursin("OnlineML", f)
-                    rm(joinpath(root, f), force=true)
-                  end
-                end
-              end
-            end
-          '
 
       - uses: julia-actions/julia-runtest@v1
         env:
