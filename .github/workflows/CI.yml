@@ -50,6 +50,7 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
         env:
           DATADEPS_ALWAYS_ACCEPT: true
+          JULIA_PKG_PRECOMPILE_AUTO: "0"
         with:
           coverage: ${{ matrix.version == '1' && matrix.os == 'ubuntu-latest' }}
           compiled_modules: no
