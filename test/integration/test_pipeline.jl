@@ -1,8 +1,9 @@
 using Test
 using OnlineML
-using OnlineML.Pipeline
-using OnlineML.Transform
-using OnlineML.Linear
+import OnlineML: Pipeline, Transform, Linear
+using .Pipeline: OnlinePipeline, FeatureUnion
+using .Transform: StandardScaler, MinMaxScaler
+using .Linear: LogisticRegression
 
 @testset "Integration: Pipeline" begin
     @testset "StandardScaler |> LogisticRegression pipeline" begin

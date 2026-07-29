@@ -42,7 +42,7 @@ export fit_predict!, score, score_one, is_anomaly, fit_score!
 export update!, status, detected_drift, detected_warning
 export dict_argmax, generate
 
-# Submodules
+# Submodules (for convenience access via using OnlineML.Linear, etc.)
 export Optim, Linear, Trees, Instance, Bayes, Cluster, Anomaly
 export Transform, Drift, Metrics, Streams, Pipeline, Ensemble
 

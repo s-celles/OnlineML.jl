@@ -2,8 +2,9 @@
 
 using Test
 using OnlineML
-using OnlineML.Trees
-using OnlineML.Streams
+import OnlineML: Trees, Streams
+using .Trees: ExtremelyFastTree, n_nodes, n_leaves, height, n_replacements
+using .Streams: SEAGenerator, generate
 
 @testset "ExtremelyFastTree" begin
     @testset "Constructor and defaults" begin

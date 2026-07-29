@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Linear
+import OnlineML: Linear
+using .Linear: Regression, LogisticRegression, Perceptron, PassiveAggressive, intercept, weights
 using OnlineStats
 
 @testset "Contract: Linear Models" begin

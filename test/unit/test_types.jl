@@ -42,7 +42,8 @@ using OnlineStatsBase
     end
 
     @testset "Optim submodule" begin
-        using OnlineML.Optim
+        import OnlineML: Optim
+        using .Optim
         using Optimisers
 
         # Verify optimizers are exported

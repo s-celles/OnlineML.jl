@@ -1,9 +1,10 @@
 using Test
 using OnlineML
-using OnlineML.Ensemble
-using OnlineML.Drift
-using OnlineML.Linear
-using OnlineML.Trees
+import OnlineML: Ensemble, Drift, Linear, Trees
+using .Ensemble: LeveragingBagging, AdaptiveRandomForest, Bagging, total_drifts, per_tree_drifts
+using .Drift: DDM
+using .Linear: LogisticRegression
+using .Trees: HoeffdingTree
 
 @testset "Integration: Ensemble" begin
     @testset "LeveragingBagging basic" begin

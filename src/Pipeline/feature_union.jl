@@ -27,8 +27,8 @@ mutable struct FeatureUnion <: OnlineStat{Any}
     end
 end
 
-# + operator for building FeatureUnion
-Base.:+(t1, t2::OnlineStat) = FeatureUnion(t1, t2)
+# + operator for building FeatureUnion (constrained to OnlineStat to avoid ambiguities)
+Base.:+(t1::OnlineStat, t2::OnlineStat) = FeatureUnion(t1, t2)
 Base.:+(fu::FeatureUnion, t::OnlineStat) = FeatureUnion(fu.transformers..., t)
 
 function OnlineStatsBase._fit!(fu::FeatureUnion, x)

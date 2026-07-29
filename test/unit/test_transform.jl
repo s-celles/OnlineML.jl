@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Transform
+import OnlineML: Transform
+using .Transform: StandardScaler, MinMaxScaler, MaxAbsScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, MeanImputer, ModeImputer, mode
 
 @testset "Transform" begin
     @testset "StandardScaler" begin

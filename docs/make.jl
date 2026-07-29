@@ -53,5 +53,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/femtotrader/OnlineML.jl.git",
+    repo = "github.com/s-celles/OnlineML.jl.git",
 )

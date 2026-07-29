@@ -2,7 +2,8 @@
 
 using Test
 using OnlineML
-using OnlineML.Transform
+import OnlineML: Transform
+using .Transform: MaxAbsScaler
 
 @testset "MaxAbsScaler" begin
     @testset "Constructor and defaults" begin

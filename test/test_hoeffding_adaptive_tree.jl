@@ -2,9 +2,10 @@
 
 using Test
 using OnlineML
-using OnlineML.Trees
-using OnlineML.Streams
-using OnlineML.Drift
+import OnlineML: Trees, Streams, Drift
+using .Trees: HoeffdingAdaptiveTree, n_nodes, n_leaves, height
+using .Streams: SEAGenerator, generate
+using .Drift: ADWIN
 
 @testset "HoeffdingAdaptiveTree" begin
     @testset "Constructor and defaults" begin

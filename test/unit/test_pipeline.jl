@@ -1,7 +1,8 @@
 using Test
 using OnlineML
-using OnlineML.Pipeline
-using OnlineML.Transform
+import OnlineML: Pipeline, Transform
+using .Pipeline: FeatureUnion, OnlinePipeline, ColumnTransformer
+using .Transform: StandardScaler, MinMaxScaler
 
 @testset "Pipeline" begin
     @testset "FeatureUnion" begin

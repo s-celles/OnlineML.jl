@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Bayes
+import OnlineML: Bayes
+using .Bayes: GaussianNB, MultinomialNB, BernoulliNB, classes, class_prior
 
 @testset "Naive Bayes" begin
     @testset "GaussianNB" begin

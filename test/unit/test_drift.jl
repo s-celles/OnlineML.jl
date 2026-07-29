@@ -1,7 +1,8 @@
 using Test
 using OnlineML
-using OnlineML.Drift
-using OnlineML.Linear
+import OnlineML: Drift, Linear
+using .Drift: ADWIN, DDM, EDDM, PageHinkley, KSWIN, DriftDetectorWrapper, DriftRetrainingWrapper, status, drift_count
+using .Linear: LogisticRegression
 
 @testset "Drift Detection" begin
     @testset "ADWIN" begin

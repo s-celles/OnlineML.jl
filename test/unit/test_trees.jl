@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Trees
+import OnlineML: Trees
+using .Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree, n_nodes, height, n_leaves
 
 @testset "Decision Trees" begin
     @testset "HoeffdingTree" begin

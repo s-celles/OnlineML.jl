@@ -24,15 +24,9 @@ module Optim
 
 using Optimisers
 
-# Re-export common optimizers
-export SGD, Momentum, Adam, AdaGrad, RMSProp, AdamW
-export Descent, Nesterov, RAdam, NAdam, AdaMax, OAdam, NADAM
-
-# Re-export Optimisers module functions
-export setup, update!, state
-
-# Re-export learning rate schedules
-export Scheduler, Step, Exp, Poly, Inv, Triangle, TriangleDecay2
+# Re-export common optimizers (only those defined in Optimisers.jl)
+export Momentum, Adam, AdaGrad, RMSProp, AdamW
+export Descent, Nesterov, RAdam, NAdam, AdaMax, OAdam
 
 """
     default_optimizer()
@@ -43,5 +37,6 @@ default_optimizer() = Adam(0.001)
 
 # Convenience aliases
 const SGD = Descent
+export SGD
 
 end # module Optim

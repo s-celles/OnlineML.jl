@@ -1,0 +1,6 @@
+style = "sciml"
+margin = 92
+indent = 4
+always_use_return = true
+whitespace_in_kwargs = true
+ignore = ["docs/build", "benchmark/results*"]

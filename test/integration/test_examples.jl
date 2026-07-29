@@ -2,16 +2,18 @@
 using DataFrames
 using MLDatasets
 using Random
+using OnlineML
+import OnlineML: Linear, Bayes, Transform, Pipeline, Drift, Streams, Trees, Ensemble, Metrics
 using OnlineML: fit!, predict, nobs, reset!, update!, detected_drift
-using OnlineML.Linear: LogisticRegression, Perceptron
-using OnlineML.Bayes: GaussianNB
-using OnlineML.Transform: StandardScaler, MinMaxScaler
-using OnlineML.Pipeline: OnlinePipeline
-using OnlineML.Drift: ADWIN, DDM
-using OnlineML.Streams: SEAGenerator, RandomRBFGenerator, generate
-using OnlineML.Trees: HoeffdingTree, n_nodes, height, n_leaves
-using OnlineML.Ensemble: Bagging
-using OnlineML.Metrics: Accuracy
+using .Linear: LogisticRegression, Perceptron
+using .Bayes: GaussianNB
+using .Transform: StandardScaler, MinMaxScaler
+using .Pipeline: OnlinePipeline
+using .Drift: ADWIN, DDM
+using .Streams: SEAGenerator, RandomRBFGenerator, generate
+using .Trees: HoeffdingTree, n_nodes, height, n_leaves
+using .Ensemble: Bagging
+using .Metrics: Accuracy
 
 @testset "Examples" begin
     # Test that all example notebooks are runnable (without Pluto UI)

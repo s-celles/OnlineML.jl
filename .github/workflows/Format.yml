@@ -1,0 +1,30 @@
+name: Format Check
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1'
+
+      - name: Install JuliaFormatter
+        run: julia -e 'using Pkg; Pkg.add("JuliaFormatter")'
+
+      - name: Check formatting
+        run: |
+          julia -e '
+            using JuliaFormatter
+            formatted = format(".", verbose=true, overwrite=false)
+            if !formatted
+                @warn "Some files are not formatted correctly. Run: julia -e '\''using JuliaFormatter; format(\".\")'\'' locally to fix."
+            end
+          '
+        # Note: This check is advisory and does not fail the CI
+        continue-on-error: true

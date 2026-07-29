@@ -1,6 +1,7 @@
 using Test
 using OnlineML
-using OnlineML.Transform
+import OnlineML: Transform
+using .Transform: StandardScaler, MinMaxScaler, MaxAbsScaler
 using OnlineStats
 
 @testset "Contract: Transform" begin
