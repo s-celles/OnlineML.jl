@@ -7,7 +7,6 @@
 !/LICENSE
 !/Project.toml
 !/README.md
-!/spec.md
 
 # Continuous integration
 !/.github/
@@ -43,3 +42,11 @@
 !/benchmark/*.jl
 !/benchmark/*.py
 !/benchmark/*.txt
+
+# Local specification and architecture artifacts
+/spec.md
+/ROADMAP.md
+/.specify/
+/specs/
+/docs/src/juliaai_audit.md
+/docs/src/juliaai_ears_supplement.md
