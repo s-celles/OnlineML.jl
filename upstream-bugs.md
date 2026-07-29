@@ -8,7 +8,8 @@ and document the local workaround.
 
 - **Upstream package:** LearnAPI.jl 2.0.1
 - **Observed:** 2026-07-29
-- **Status:** Reproduced; not yet reported upstream
+- **Status:** Reported upstream
+- **Upstream issue:** [JuliaAI/LearnAPI.jl#67](https://github.com/JuliaAI/LearnAPI.jl/issues/67)
 - **Upstream symbols:** `LearnAPI.clone`, `LearnAPI.constructor`
 - **Upstream files:** `src/clone.jl`, `src/traits.jl`
 
