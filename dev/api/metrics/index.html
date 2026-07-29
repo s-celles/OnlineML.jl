@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Metrics · OnlineML.jl</title><meta name="title" content="Metrics · OnlineML.jl"/><meta property="og:title" content="Metrics · OnlineML.jl"/><meta property="twitter:title" content="Metrics · OnlineML.jl"/><meta name="description" content="Documentation for OnlineML.jl."/><meta property="og:description" content="Documentation for OnlineML.jl."/><meta property="twitter:description" content="Documentation for OnlineML.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">OnlineML.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../getting_started/">Getting Started</a></li><li><a class="tocitem" href="../../migration_from_river/">Migration from River</a></li><li><a class="tocitem" href="../../ai_transparency/">AI Transparency</a></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../linear/">Linear Models</a></li><li><a class="tocitem" href="../trees/">Decision Trees</a></li><li><a class="tocitem" href="../ensemble/">Ensemble Methods</a></li><li><a class="tocitem" href="../instance/">Instance-Based Learning</a></li><li><a class="tocitem" href="../bayes/">Naive Bayes</a></li><li><a class="tocitem" href="../cluster/">Clustering</a></li><li><a class="tocitem" href="../anomaly/">Anomaly Detection</a></li><li><a class="tocitem" href="../transform/">Transformers</a></li><li><a class="tocitem" href="../drift/">Drift Detection</a></li><li class="is-active"><a class="tocitem" href>Metrics</a><ul class="internal"><li><a class="tocitem" href="#Classification-Metrics"><span>Classification Metrics</span></a></li><li><a class="tocitem" href="#Regression-Metrics"><span>Regression Metrics</span></a></li><li><a class="tocitem" href="#Rolling-Metrics"><span>Rolling Metrics</span></a></li><li><a class="tocitem" href="#Evaluation-Functions"><span>Evaluation Functions</span></a></li><li><a class="tocitem" href="#Examples"><span>Examples</span></a></li></ul></li><li><a class="tocitem" href="../streams/">Streams and Generators</a></li><li><a class="tocitem" href="../pipeline/">Pipeline</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">API Reference</a></li><li class="is-active"><a href>Metrics</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Metrics</a></li></ul></nav><div class="docs-right"><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Metrics"><a class="docs-heading-anchor" href="#Metrics">Metrics</a><a id="Metrics-1"></a><a class="docs-heading-anchor-permalink" href="#Metrics" title="Permalink"></a></h1><p>Online evaluation metrics.</p><h2 id="Classification-Metrics"><a class="docs-heading-anchor" href="#Classification-Metrics">Classification Metrics</a><a id="Classification-Metrics-1"></a><a class="docs-heading-anchor-permalink" href="#Classification-Metrics" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.Accuracy"><a class="docstring-binding" href="#OnlineML.Metrics.Accuracy"><code>OnlineML.Metrics.Accuracy</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">Accuracy &lt;: Metric{Int}</code></pre><p>Online accuracy metric for classification.</p><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; metric = Accuracy()
+Accuracy: n=0 | value=0.0
+
+julia&gt; fit!(metric, (1, 1));
+
+julia&gt; fit!(metric, (0, 1));
+
+julia&gt; value(metric)
+0.5
+
+julia&gt; nobs(metric)
+2</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.Precision"><a class="docstring-binding" href="#OnlineML.Metrics.Precision"><code>OnlineML.Metrics.Precision</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">Precision &lt;: Metric{Int}</code></pre><p>Online precision metric (positive class = 1).</p><p>precision = TP / (TP + FP)</p></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.Recall"><a class="docstring-binding" href="#OnlineML.Metrics.Recall"><code>OnlineML.Metrics.Recall</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">Recall &lt;: Metric{Int}</code></pre><p>Online recall metric (positive class = 1).</p><p>recall = TP / (TP + FN)</p></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.F1Score"><a class="docstring-binding" href="#OnlineML.Metrics.F1Score"><code>OnlineML.Metrics.F1Score</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">F1Score &lt;: Metric{Int}</code></pre><p>Online F1 score (harmonic mean of precision and recall).</p><p>F1 = 2 * (precision * recall) / (precision + recall)</p></div></section></details></article><h2 id="Regression-Metrics"><a class="docs-heading-anchor" href="#Regression-Metrics">Regression Metrics</a><a id="Regression-Metrics-1"></a><a class="docs-heading-anchor-permalink" href="#Regression-Metrics" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.MAE"><a class="docstring-binding" href="#OnlineML.Metrics.MAE"><code>OnlineML.Metrics.MAE</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">MAE{T&lt;:AbstractFloat} &lt;: Metric{T}</code></pre><p>Mean Absolute Error for regression.</p><p>MAE = (1/n) * Σ|y<em>pred - y</em>true|</p><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; metric = MAE()
+MAE: n=0 | value=0.0
+
+julia&gt; fit!(metric, (1.0, 2.0));
+
+julia&gt; fit!(metric, (3.0, 2.0));
+
+julia&gt; value(metric)
+1.0
+
+julia&gt; nobs(metric)
+2</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.MSE"><a class="docstring-binding" href="#OnlineML.Metrics.MSE"><code>OnlineML.Metrics.MSE</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">MSE{T&lt;:AbstractFloat} &lt;: Metric{T}</code></pre><p>Mean Squared Error for regression.</p><p>MSE = (1/n) * Σ(y<em>pred - y</em>true)²</p><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; metric = MSE()
+MSE: n=0 | value=0.0
+
+julia&gt; fit!(metric, (1.0, 2.0));
+
+julia&gt; fit!(metric, (3.0, 2.0));
+
+julia&gt; value(metric)
+1.0
+
+julia&gt; nobs(metric)
+2</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.RMSE"><a class="docstring-binding" href="#OnlineML.Metrics.RMSE"><code>OnlineML.Metrics.RMSE</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">RMSE{T&lt;:AbstractFloat} &lt;: Metric{T}</code></pre><p>Root Mean Squared Error for regression.</p><p>RMSE = √MSE</p><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; metric = RMSE()
+RMSE: n=0 | value=0.0
+
+julia&gt; fit!(metric, (1.0, 2.0));
+
+julia&gt; fit!(metric, (3.0, 2.0));
+
+julia&gt; value(metric)
+1.0
+
+julia&gt; nobs(metric)
+2</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.R2"><a class="docstring-binding" href="#OnlineML.Metrics.R2"><code>OnlineML.Metrics.R2</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">R2{T&lt;:AbstractFloat} &lt;: Metric{T}</code></pre><p>Online R² (coefficient of determination) using Welford&#39;s algorithm.</p><p>R² = 1 - SS<em>res / SS</em>tot = 1 - Σ(y - ŷ)² / Σ(y - ȳ)²</p><p>Uses running mean and variance to compute SS_tot incrementally.</p><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; metric = R2()
+R2: n=0 | value=NaN
+
+julia&gt; fit!(metric, (1.0, 1.0));
+
+julia&gt; fit!(metric, (2.0, 2.0));
+
+julia&gt; fit!(metric, (3.0, 3.0));
+
+julia&gt; value(metric)
+1.0
+
+julia&gt; nobs(metric)
+3</code></pre></div></section></details></article><h2 id="Rolling-Metrics"><a class="docs-heading-anchor" href="#Rolling-Metrics">Rolling Metrics</a><a id="Rolling-Metrics-1"></a><a class="docs-heading-anchor-permalink" href="#Rolling-Metrics" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.RollingMetric"><a class="docstring-binding" href="#OnlineML.Metrics.RollingMetric"><code>OnlineML.Metrics.RollingMetric</code></a> — <span class="docstring-category">Type</span></summary><section><div><pre><code class="language-julia hljs">RollingMetric{M&lt;:Metric}</code></pre><p>Wraps any metric to compute it over a rolling window.</p><p><strong>Parameters</strong></p><ul><li><code>metric::M</code> - The base metric type</li><li><code>window_size::Int = 100</code> - Size of the rolling window</li></ul><p><strong>Example</strong></p><pre><code class="language-julia hljs">rolling_acc = RollingMetric(Accuracy(), window_size=100)
+for (y_pred, y_true) in data
+    fit!(rolling_acc, y_pred, y_true)
+    println(&quot;Rolling accuracy: &quot;, value(rolling_acc))
+end</code></pre></div></section></details></article><h2 id="Evaluation-Functions"><a class="docs-heading-anchor" href="#Evaluation-Functions">Evaluation Functions</a><a id="Evaluation-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluation-Functions" title="Permalink"></a></h2><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.progressive_val_score"><a class="docstring-binding" href="#OnlineML.Metrics.progressive_val_score"><code>OnlineML.Metrics.progressive_val_score</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">progressive_val_score(model, stream, metric; n_samples=1000)</code></pre><p>Prequential (test-then-train) evaluation.</p><p>For each sample:</p><ol><li>Make a prediction (test)</li><li>Update metric with prediction</li><li>Train model with true label (train)</li></ol><p>Returns (final_score, trajectory) where trajectory is the metric value after each sample.</p><p><strong>Arguments</strong></p><ul><li><code>model</code> - The online learning model</li><li><code>stream</code> - Iterator of (x, y) pairs or generator with <code>generate</code> function</li><li><code>metric</code> - The metric to track (e.g., Accuracy())</li><li><code>n_samples</code> - Number of samples to process</li></ul><p><strong>Example</strong></p><pre><code class="language-julia hljs">model = LogisticRegression()
+gen = SEAGenerator()
+metric = Accuracy()
+
+score, trajectory = progressive_val_score(model, gen, metric, n_samples=1000)
+println(&quot;Final accuracy: &quot;, score)
+plot(trajectory)  # Visualize learning curve</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.holdout_score"><a class="docstring-binding" href="#OnlineML.Metrics.holdout_score"><code>OnlineML.Metrics.holdout_score</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">holdout_score(model, train_stream, test_stream, metric; train_size=1000)</code></pre><p>Holdout evaluation: train on train<em>stream, evaluate on test</em>stream.</p><p><strong>Arguments</strong></p><ul><li><code>model</code> - The online learning model</li><li><code>train_stream</code> - Training data iterator/generator</li><li><code>test_stream</code> - Test data iterator/generator</li><li><code>metric</code> - The metric to track</li><li><code>train_size</code> - Number of training samples</li></ul><p><strong>Example</strong></p><pre><code class="language-julia hljs">model = LogisticRegression()
+train_gen = SEAGenerator(rng=MersenneTwister(42))
+test_gen = SEAGenerator(rng=MersenneTwister(123))
+metric = Accuracy()
+
+score = holdout_score(model, train_gen, test_gen, metric, train_size=1000)
+println(&quot;Holdout accuracy: &quot;, score)</code></pre></div></section></details></article><article><details class="docstring" open="true"><summary id="OnlineML.Metrics.interleaved_test_then_train"><a class="docstring-binding" href="#OnlineML.Metrics.interleaved_test_then_train"><code>OnlineML.Metrics.interleaved_test_then_train</code></a> — <span class="docstring-category">Function</span></summary><section><div><pre><code class="language-julia hljs">interleaved_test_then_train(model, stream, metric; period=100)</code></pre><p>Interleaved test-then-train with periodic holdout evaluation.</p><p>Every <code>period</code> samples, evaluates on a small holdout before training.</p><p>Returns (final<em>score, periodic</em>scores)</p></div></section></details></article><h2 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h2><h3 id="Basic-Usage"><a class="docs-heading-anchor" href="#Basic-Usage">Basic Usage</a><a id="Basic-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage" title="Permalink"></a></h3><pre><code class="language-julia hljs">using OnlineML.Metrics: Accuracy, F1Score
+
+acc = Accuracy()
+f1 = F1Score()
+
+for (y_pred, y_true) in predictions
+    fit!(acc, (y_pred, y_true))
+    fit!(f1, (y_pred, y_true))
+end
+
+println(&quot;Accuracy: &quot;, value(acc))
+println(&quot;F1 Score: &quot;, value(f1))</code></pre><h3 id="Rolling-Window-Metric"><a class="docs-heading-anchor" href="#Rolling-Window-Metric">Rolling Window Metric</a><a id="Rolling-Window-Metric-1"></a><a class="docs-heading-anchor-permalink" href="#Rolling-Window-Metric" title="Permalink"></a></h3><pre><code class="language-julia hljs">using OnlineML.Metrics: RollingMetric, Accuracy
+
+# Track accuracy over last 100 predictions
+metric = RollingMetric(Accuracy, window_size=100)
+
+for (y_pred, y_true) in predictions
+    fit!(metric, (y_pred, y_true))
+    println(&quot;Rolling accuracy: &quot;, value(metric))
+end</code></pre><h3 id="Prequential-Evaluation"><a class="docs-heading-anchor" href="#Prequential-Evaluation">Prequential Evaluation</a><a id="Prequential-Evaluation-1"></a><a class="docs-heading-anchor-permalink" href="#Prequential-Evaluation" title="Permalink"></a></h3><pre><code class="language-julia hljs">using OnlineML.Metrics: progressive_val_score, Accuracy
+using OnlineML.Linear: LogisticRegression
+using OnlineML.Streams: SEAGenerator
+
+model = LogisticRegression()
+gen = SEAGenerator()
+metric = Accuracy()
+
+score, trajectory = progressive_val_score(model, gen, metric, n_samples=1000)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../drift/">« Drift Detection</a><a class="docs-footer-nextpage" href="../streams/">Streams and Generators »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 29 July 2026 16:22">Wednesday 29 July 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
