@@ -82,7 +82,7 @@ and parameter averaging is not a valid distributed training strategy.
 
 | Detector | Input | Retained state | Warning | Automatic state reset | Maturity |
 |:--|:--|:--|:--|:--|:--|
-| `ADWIN` | Real-valued | Compressed buckets | Yes | No | Non-conforming approximation |
+| `ADWIN` | Finite real-valued | Exact adaptive window | No | Shrinks on drift | Cut-point lifecycle qualified |
 | `DDM` | Binary error | Constant | Yes | On drift | Deterministic lifecycle qualified |
 | `EDDM` | Binary error | Constant | Yes | On drift | Unqualified dispersion approximation |
 | `PageHinkley` | Real-valued | Constant | No | On drift | Deterministic lifecycle qualified |
@@ -94,13 +94,15 @@ invariants, DDM behavior on a perfect error stream followed by an abrupt error
 increase, Page-Hinkley behavior after an internal reset, and KSWIN window
 bounds and response to a separated deterministic distribution.
 
-`ADWIN` currently compresses observations but does not evaluate cut points,
-shrink its logical window, or implement the complete ADWIN algorithm. `EDDM`
-does not yet have an independently verified dispersion update. These names are
-retained for compatibility, but neither implementation should be used as an
+`ADWIN` evaluates every admissible cut point using a variance-sensitive bound
+and discards obsolete prefixes. It retains exact observations rather than the
+paper's bucket-compressed optimization; its memory therefore follows the
+adaptive window and can grow on a stationary stream. `EDDM` does not yet have
+an independently verified dispersion update and should not be used as an
 algorithmic reference. For DDM, EDDM, and Page-Hinkley, `nobs` describes the
 current post-reset segment because their state is cleared after a detected
-drift.
+drift. For ADWIN, `nobs` is the lifetime count and `window_size` is the retained
+adaptive window.
 
 Detector states are order-sensitive and do not expose a merge operation.
 Merging detector parameters or summaries would not reproduce processing the

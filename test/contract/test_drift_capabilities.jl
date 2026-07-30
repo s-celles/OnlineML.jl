@@ -34,6 +34,7 @@ end
 @testset "constructor and input validation" begin
     @test_throws ArgumentError ADWIN(delta=0.0)
     @test_throws ArgumentError ADWIN(delta=1.0)
+    @test_throws ArgumentError ADWIN(min_window_length=0)
     @test_throws ArgumentError DDM(warning_level=0.0)
     @test_throws ArgumentError DDM(warning_level=3.0, drift_level=2.0)
     @test_throws ArgumentError DDM(min_instances=0)
@@ -46,6 +47,22 @@ end
 
     @test_throws ArgumentError fit!(DDM(), 0.5)
     @test_throws ArgumentError fit!(EDDM(), -1.0)
+    @test_throws ArgumentError fit!(ADWIN(), Inf)
+end
+
+@testset "ADWIN retains stable data and shrinks after an abrupt shift" begin
+    detector = ADWIN(delta=0.01, min_window_length=5)
+    stable_states = [update!(detector, 0.0) for _ in 1:40]
+    @test all(==(NoDrift), stable_states)
+    @test window_size(detector) == 40
+    @test nobs(detector) == 40
+
+    shifted_states = [update!(detector, 1.0) for _ in 1:40]
+    @test DriftDetected in shifted_states
+    @test window_size(detector) < nobs(detector)
+    @test window_size(detector) <= 40
+    @test value(detector) > 0.9
+    @test !detected_warning(detector)
 end
 
 @testset "DDM stable errors and deterministic shift" begin
