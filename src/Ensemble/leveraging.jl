@@ -43,6 +43,9 @@ mutable struct LeveragingBagging{L} <: Learner{AbstractVector, Any}
         lambda::Float64 = 6.0,
         rng::Random.AbstractRNG = Random.default_rng()
     )
+        n_estimators > 0 || throw(ArgumentError("n_estimators must be positive"))
+        isfinite(lambda) && lambda > 0 ||
+            throw(ArgumentError("lambda must be finite and positive"))
         learners = [base_learner() for _ in 1:n_estimators]
         L = eltype(learners)
         new{L}(learners, n_estimators, lambda, 0, rng)
@@ -98,17 +101,22 @@ function predict_proba(lb::LeveragingBagging, x)
     end
 
     probs = Dict{Any, Float64}()
+    contributors = 0
 
     for learner in lb.learners
         learner_probs = predict_proba(learner, x)
+        isempty(learner_probs) && continue
+        contributors += 1
         for (class, prob) in learner_probs
             probs[class] = get(probs, class, 0.0) + prob
         end
     end
 
-    # Average
+    contributors == 0 && return probs
+
+    # Average over learners that can issue a probability distribution.
     for class in keys(probs)
-        probs[class] /= lb.n_estimators
+        probs[class] /= contributors
     end
 
     return probs

@@ -71,6 +71,9 @@ mutable struct AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
         lambda::Float64 = 6.0,
         rng::Random.AbstractRNG = Random.default_rng()
     )
+        n_estimators > 0 || throw(ArgumentError("n_estimators must be positive"))
+        isfinite(lambda) && lambda > 0 ||
+            throw(ArgumentError("lambda must be finite and positive"))
         estimators = [ARFEstimator(base_learner, detector) for _ in 1:n_estimators]
         L = typeof(estimators[1].model)
         D = typeof(estimators[1].drift_detector)
@@ -87,14 +90,15 @@ function OnlineStatsBase._fit!(arf::AdaptiveRandomForest, xy::Tuple)
         k = rand(arf.rng, Poisson(arf.lambda))
 
         if k > 0
+            # Measure the error before exposing the current observation to the
+            # model. Drift detection must follow test-then-train semantics.
+            y_pred = predict(est.model, x)
+            error = y_pred != y ? 1.0 : 0.0
+
             # Train main model
             for _ in 1:k
                 fit!(est.model, (x, y))
             end
-
-            # Compute error for drift detection
-            y_pred = predict(est.model, x)
-            error = y_pred != y ? 1.0 : 0.0
 
             # Update drift detector
             fit!(est.drift_detector, error)
@@ -178,17 +182,22 @@ function predict_proba(arf::AdaptiveRandomForest, x)
     end
 
     probs = Dict{Any, Float64}()
+    contributors = 0
 
     for est in arf.estimators
         est_probs = predict_proba(est.model, x)
+        isempty(est_probs) && continue
+        contributors += 1
         for (class, prob) in est_probs
             probs[class] = get(probs, class, 0.0) + prob
         end
     end
 
-    # Average
+    contributors == 0 && return probs
+
+    # Average over estimators that can issue a probability distribution.
     for class in keys(probs)
-        probs[class] /= arf.n_estimators
+        probs[class] /= contributors
     end
 
     return probs

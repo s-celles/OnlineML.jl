@@ -106,6 +106,30 @@ Detector states are order-sensitive and do not expose a merge operation.
 Merging detector parameters or summaries would not reproduce processing the
 original event order.
 
-Ensembles remain experimental until their behavior is covered by corresponding
-capability entries and contract tests. General pipelines, resampling, tuning,
-and batch evaluation belong to MLJ rather than this capability layer.
+## Experimental ensemble capabilities
+
+| Ensemble | Order-sensitive | Mergeable state | Memory bound | Drift adaptation | Maturity |
+|:--|:--|:--|:--|:--|:--|
+| `Bagging` | Yes, stochastic | No | Depends on base learners | No | Lifecycle qualified |
+| `LeveragingBagging` | Yes, stochastic | No | Depends on base learners | No | Poisson-resampling approximation |
+| `AdaptiveRandomForest` | Yes, stochastic | No | Depends on base learners and background models | Yes | Non-conforming ARF approximation |
+
+The assertions in `test/contract/test_ensemble_capabilities.jl` verify
+constructor constraints, one-pass delta consumption, prediction without
+training-state mutation, normalized probability aggregation, and prequential
+test-then-train errors for drift detectors. Supplying independent RNG instances
+with identical initial states gives reproducible stochastic updates. `reset!`
+clears learned models and counters but does not rewind the RNG stream.
+
+`LeveragingBagging` currently implements higher-rate Poisson resampling but not
+the complete family of leveraging-bagging strategies. `AdaptiveRandomForest`
+adds per-estimator detectors and background-model replacement, but it does not
+implement random feature subspaces. Its name is retained for compatibility and
+must not be interpreted as full algorithmic conformance.
+
+Ensemble states must not be merged or replaced by averaged parameters.
+Distribution can assign independently owned estimators to workers only with an
+explicit prediction-aggregation and checkpoint protocol.
+
+General pipelines, resampling, tuning, and batch evaluation belong to MLJ
+rather than this capability layer.
