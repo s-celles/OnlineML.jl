@@ -12,7 +12,7 @@ DocMeta.setdocmeta!(OnlineML, :DocTestSetup, quote
     using OnlineML.Bayes: GaussianNB, MultinomialNB, BernoulliNB
     using OnlineML.Instance: KNN
     using OnlineML.Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
-    using OnlineML.Drift: ADWIN, DDM, EDDM, PageHinkley, status
+    using OnlineML.Drift: ADWIN, DDM, EDDM, KSWIN, PageHinkley, status
     using OnlineML.Anomaly: HalfSpaceTrees
     using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, LeveragingBagging
     using OnlineML.Pipeline: OnlinePipeline
@@ -25,7 +25,8 @@ end; recursive=true)
 makedocs(
     sitename = "OnlineML.jl",
     format = Documenter.HTML(
-        prettyurls = get(ENV, "CI", nothing) == "true"
+        prettyurls = get(ENV, "CI", nothing) == "true",
+        repolink = "https://github.com/s-celles/OnlineML.jl",
     ),
     remotes = nothing,
     warnonly = true,
