@@ -86,6 +86,10 @@ using Documenter
         include("contract/test_instance_cluster_capabilities.jl")
     end
 
+    @testset "Contract: Drift capabilities" begin
+        include("contract/test_drift_capabilities.jl")
+    end
+
     # Integration tests
     @testset "Integration: Pipeline" begin
         include("integration/test_pipeline.jl")

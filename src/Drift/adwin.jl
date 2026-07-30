@@ -5,8 +5,11 @@
 
 Adaptive Windowing drift detector.
 
-Maintains a variable-length window that automatically shrinks
-when distribution change is detected.
+!!! warning "Experimental approximation"
+    This implementation compresses observations into buckets but does not yet
+    perform ADWIN cut-point evaluation or shrink its logical window after a
+    detected change. It must not be treated as a conforming ADWIN
+    implementation.
 
 # Parameters
 - `delta::Float64 = 0.002` - Confidence parameter
@@ -36,6 +39,7 @@ mutable struct ADWIN <: Detector
     drift_status::DriftStatus
 
     function ADWIN(; delta::Float64 = 0.002)
+        0 < delta < 1 || throw(ArgumentError("delta must be in (0, 1)"))
         new(delta, [Float64[] for _ in 1:32], zeros(Int, 32),
             0.0, 0.0, 0, 0, NoDrift)
     end

@@ -50,6 +50,10 @@ mutable struct DDM <: Detector
         drift_level::Float64 = 3.0,
         min_instances::Int = 30
     )
+        warning_level > 0 || throw(ArgumentError("warning_level must be positive"))
+        drift_level > warning_level ||
+            throw(ArgumentError("drift_level must be greater than warning_level"))
+        min_instances > 0 || throw(ArgumentError("min_instances must be positive"))
         new(warning_level, drift_level, min_instances,
             0, 0.0, 0.0, Inf, Inf, 0, NoDrift)
     end
@@ -57,6 +61,7 @@ end
 
 function OnlineStatsBase._fit!(ddm::DDM, x::Real)
     x = Float64(x)
+    x in (0.0, 1.0) || throw(ArgumentError("DDM expects a binary error indicator"))
     ddm.n += 1
 
     # Update error rate estimate
@@ -77,11 +82,11 @@ function OnlineStatsBase._fit!(ddm::DDM, x::Real)
     end
 
     # Check for drift
-    if ddm.p + ddm.s >= ddm.p_min + ddm.drift_level * ddm.s_min
+    if ddm.p + ddm.s > ddm.p_min + ddm.drift_level * ddm.s_min
         ddm.drift_status = DriftDetected
         # Reset after drift
         reset_stats!(ddm)
-    elseif ddm.p + ddm.s >= ddm.p_min + ddm.warning_level * ddm.s_min
+    elseif ddm.p + ddm.s > ddm.p_min + ddm.warning_level * ddm.s_min
         ddm.drift_status = Warning
     end
 
@@ -123,6 +128,10 @@ Early Drift Detection Method.
 
 Similar to DDM but uses distance between errors instead of error rate,
 which can detect drift earlier.
+
+!!! warning "Experimental approximation"
+    The current dispersion update has not yet been qualified against an
+    independent EDDM reference implementation.
 
 # Parameters
 - `warning_level::Float64 = 0.95` - Threshold for warning (as ratio of max)
@@ -166,6 +175,9 @@ mutable struct EDDM <: Detector
         drift_level::Float64 = 0.90,
         min_instances::Int = 30
     )
+        0 < drift_level < warning_level < 1 ||
+            throw(ArgumentError("levels must satisfy 0 < drift_level < warning_level < 1"))
+        min_instances > 0 || throw(ArgumentError("min_instances must be positive"))
         new(warning_level, drift_level, min_instances,
             0, 0, 0, 0.0, 0.0, 0.0, 0.0, NoDrift)
     end
@@ -173,6 +185,7 @@ end
 
 function OnlineStatsBase._fit!(eddm::EDDM, x::Real)
     x = Float64(x)
+    x in (0.0, 1.0) || throw(ArgumentError("EDDM expects a binary error indicator"))
     eddm.n += 1
     eddm.drift_status = NoDrift
 

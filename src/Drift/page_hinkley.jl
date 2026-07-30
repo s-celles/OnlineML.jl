@@ -48,6 +48,10 @@ mutable struct PageHinkley <: Detector
         threshold::Float64 = 50.0,
         alpha::Float64 = 1 - 0.0001
     )
+        min_instances > 0 || throw(ArgumentError("min_instances must be positive"))
+        delta >= 0 || throw(ArgumentError("delta must be non-negative"))
+        threshold > 0 || throw(ArgumentError("threshold must be positive"))
+        0 <= alpha < 1 || throw(ArgumentError("alpha must be in [0, 1)"))
         new(min_instances, delta, threshold, alpha,
             0, 0.0, 0.0, 0.0, NoDrift)
     end
@@ -58,8 +62,14 @@ function OnlineStatsBase._fit!(ph::PageHinkley, x::Real)
     ph.n += 1
     ph.drift_status = NoDrift
 
-    # Update mean with forgetting factor
-    ph.x_mean = ph.alpha * ph.x_mean + (1 - ph.alpha) * x
+    # Initialize a new segment from its first value. Starting from zero would
+    # repeatedly report drift after an internal reset on a stable non-zero
+    # signal.
+    if ph.n == 1
+        ph.x_mean = x
+    else
+        ph.x_mean = ph.alpha * ph.x_mean + (1 - ph.alpha) * x
+    end
 
     # Update cumulative sum
     ph.sum = ph.sum + (x - ph.x_mean - ph.delta)
