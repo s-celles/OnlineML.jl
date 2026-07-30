@@ -44,7 +44,22 @@ statistical or numerical property is production-qualified:
   evolution is limited to appending trailing features; column reordering,
   removal, and semantic type changes are not supported.
 
-The tree learners, ensembles, and drift detectors remain experimental until
-their behavior is covered by corresponding capability entries and contract
-tests. General pipelines, resampling, tuning, and batch evaluation belong to MLJ
-rather than this capability layer.
+## Experimental tree capabilities
+
+| Model | Order-sensitive | Mergeable state | Bounded memory | New classes | Schema evolution |
+|:--|:--|:--|:--|:--|:--|
+| `HoeffdingTree` | Yes | No | Only with a finite `max_depth` | Yes | Partial; trailing features can be added |
+| `ExtremelyFastTree` | Yes | No | Only with a finite `max_depth` | Yes | Partial; trailing features can be added |
+| `HoeffdingAdaptiveTree` | Yes | No | Only with a finite `max_depth` | Yes | Partial; trailing features can be added |
+
+These tree learners support observation-wise updates, delta mini-batches,
+single-pass input, and reset. The lifecycle assertions live in
+`test/contract/test_tree_capabilities.jl`. They remain experimental because
+these assertions do not yet qualify split correctness, drift adaptation,
+long-run memory behavior, or predictive quality. Tree states must not be merged,
+and parameter averaging is not a valid distributed training strategy.
+
+Ensembles and drift detectors remain experimental until their behavior is
+covered by corresponding capability entries and contract tests. General
+pipelines, resampling, tuning, and batch evaluation belong to MLJ rather than
+this capability layer.
