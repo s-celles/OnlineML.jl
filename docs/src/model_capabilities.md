@@ -157,5 +157,10 @@ Anomaly-detector states are order-sensitive and expose no mathematically valid
 merge. Distributed execution therefore requires single-owner partitioning or
 explicit ensemble aggregation, not parameter averaging.
 
+Julia `Serialization` round trips preserve representative ensemble and anomaly
+states, including explicit RNG continuation, within the same Julia runtime. This
+is exercised in `test/contract/test_checkpoint_capabilities.jl`; it is not a
+portable or version-stable checkpoint format.
+
 General pipelines, resampling, tuning, and batch evaluation belong to MLJ
 rather than this capability layer.

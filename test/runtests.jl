@@ -98,6 +98,10 @@ using Documenter
         include("contract/test_anomaly_capabilities.jl")
     end
 
+    @testset "Contract: Same-runtime checkpoints" begin
+        include("contract/test_checkpoint_capabilities.jl")
+    end
+
     # Integration tests
     @testset "Integration: Pipeline" begin
         include("integration/test_pipeline.jl")

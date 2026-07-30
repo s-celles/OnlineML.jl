@@ -27,10 +27,17 @@ This table is documentation, not a public trait API.
 | Drift detectors | yes | yes | detector-specific | detector-specific | n/a | n/a | none demonstrated |
 | Adaptive ensembles | yes | yes, including RNG | member-specific | member-specific | member-specific | no | none |
 
-Serialization currently relies on Julia object serialization and is not a stable
-cross-version checkpoint format. Sample weights are not part of the common learner
-contract. Distributed training is unsupported unless a specific state supplies and
-tests a mathematically valid merge operation.
+Serialization currently relies on Julia's `Serialization` standard library and is
+not a stable cross-version, cross-Julia-build, or portable checkpoint format.
+Same-runtime round trips are tested for representative stochastic ensemble and
+anomaly states, including their RNG continuation, in
+`test/contract/test_checkpoint_capabilities.jl`. A checkpoint must include the
+complete learner object; serializing only `value(model)` is not a supported resume
+mechanism. OnlineML does not yet expose file-format or durability guarantees.
+
+Sample weights are not part of the common learner contract. Distributed training
+is unsupported unless a specific state supplies and tests a mathematically valid
+merge operation.
 
 ## LearnAPI integration
 
