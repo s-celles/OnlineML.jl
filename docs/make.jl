@@ -34,6 +34,7 @@ makedocs(
         "Home" => "index.md",
         "Getting Started" => "getting_started.md",
         "Incremental Contract" => "incremental_contract.md",
+        "Model Capabilities" => "model_capabilities.md",
         "Migration from River" => "migration_from_river.md",
         "AI Transparency" => "ai_transparency.md",
         "API Reference" => [

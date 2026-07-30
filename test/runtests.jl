@@ -74,6 +74,10 @@ using Documenter
         include("contract/test_incremental.jl")
     end
 
+    @testset "Contract: Reference models" begin
+        include("contract/test_reference_models.jl")
+    end
+
     # Integration tests
     @testset "Integration: Pipeline" begin
         include("integration/test_pipeline.jl")
