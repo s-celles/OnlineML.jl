@@ -8,8 +8,8 @@ using Distances
 Online K-Means clustering using mini-batch updates.
 
 # Parameters
-- `k::Int = 3` - Number of clusters
-- `learning_rate::Float64 = 0.1` - Learning rate for centroid updates
+- `k::Int = 3` - Positive number of clusters
+- `learning_rate::Float64 = 0.1` - Centroid learning rate in `(0, 1]`
 
 # Example
 ```jldoctest
@@ -33,6 +33,9 @@ mutable struct StreamingKMeans{T<:AbstractFloat} <: UnsupervisedLearner{Abstract
     n::Int
 
     function StreamingKMeans{T}(; k::Int=3, learning_rate::Real=0.1) where {T<:AbstractFloat}
+        k > 0 || throw(ArgumentError("k must be positive"))
+        0 < learning_rate <= 1 ||
+            throw(ArgumentError("learning_rate must be in the interval (0, 1]"))
         new{T}(k, T(learning_rate), Vector{T}[], zeros(Int, k), 0)
     end
 end
@@ -42,6 +45,11 @@ StreamingKMeans(; kwargs...) = StreamingKMeans{Float64}(; kwargs...)
 # OnlineStatsBase interface
 function OnlineStatsBase._fit!(km::StreamingKMeans{T}, x) where {T}
     x = collect(T, x)
+    if !isempty(km.centroids) && length(x) != length(first(km.centroids))
+        throw(DimensionMismatch(
+            "expected $(length(first(km.centroids))) features, got $(length(x))"
+        ))
+    end
 
     if isempty(km.centroids)
         # Initialize first centroid
@@ -104,6 +112,10 @@ function predict(km::StreamingKMeans{T}, x::AbstractVector) where {T}
         return 0
     end
     x = collect(T, x)
+    length(x) == length(first(km.centroids)) ||
+        throw(DimensionMismatch(
+            "expected $(length(first(km.centroids))) features, got $(length(x))"
+        ))
     return find_nearest(km, x)
 end
 

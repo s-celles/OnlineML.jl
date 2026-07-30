@@ -44,6 +44,25 @@ statistical or numerical property is production-qualified:
   evolution is limited to appending trailing features; column reordering,
   removal, and semantic type changes are not supported.
 
+## Reference instance and clustering capabilities
+
+| Model | Order-sensitive | Mergeable state | Bounded state | New classes | Schema evolution |
+|:--|:--|:--|:--|:--|:--|
+| `StreamingKMeans` | Yes | No | Yes, proportional to clusters × features | Not applicable | No |
+| `KNN` | Yes | No | Yes, proportional to `window_size` × features | Yes, while represented in the window | No |
+
+Both models support observation-wise updates, delta mini-batches, single-pass
+input, prediction without mutation, and reset. `StreamingKMeans` retains at most
+`k` centroids. `KNN` retains at most `window_size` labeled observations, while
+`nobs` continues to report the total number of observations consumed.
+
+The assertions live in
+`test/contract/test_instance_cluster_capabilities.jl`. They also verify
+constructor constraints, explicit rejection of feature-dimension changes,
+KNN window eviction, and order-sensitive state. Neither model exposes a
+mathematically valid state merge, and KNN distance weighting is not equivalent
+to per-observation sample weights.
+
 ## Experimental tree capabilities
 
 | Model | Order-sensitive | Mergeable state | Bounded memory | New classes | Schema evolution |

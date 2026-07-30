@@ -8,8 +8,8 @@ using DataStructures: CircularBuffer
 Online K-Nearest Neighbors classifier with sliding window.
 
 # Parameters
-- `k::Int = 5` - Number of neighbors
-- `window_size::Int = 1000` - Maximum observations to retain
+- `k::Int = 5` - Positive number of neighbors
+- `window_size::Int = 1000` - Positive maximum number of observations to retain
 - `weighted::Bool = true` - Use distance-weighted voting
 - `distance::Distances.Metric = Euclidean()` - Distance metric
 
@@ -42,6 +42,8 @@ mutable struct KNN{T<:AbstractFloat, M<:Distances.Metric} <: Learner{AbstractVec
         weighted::Bool = true,
         distance::Distances.Metric = Euclidean()
     ) where {T<:AbstractFloat}
+        k > 0 || throw(ArgumentError("k must be positive"))
+        window_size > 0 || throw(ArgumentError("window_size must be positive"))
         new{T, typeof(distance)}(
             k,
             window_size,
@@ -61,6 +63,11 @@ function OnlineStatsBase._fit!(knn::KNN{T}, xy::Tuple) where {T}
     x, y = xy
     x = collect(T, x)
     y = Int(y)
+    if !isempty(knn.X_buffer) && length(x) != length(first(knn.X_buffer))
+        throw(DimensionMismatch(
+            "expected $(length(first(knn.X_buffer))) features, got $(length(x))"
+        ))
+    end
 
     # Add to buffers
     push!(knn.X_buffer, x)
@@ -93,6 +100,10 @@ function predict(knn::KNN{T}, x::AbstractVector) where {T}
     end
 
     x = collect(T, x)
+    length(x) == length(first(knn.X_buffer)) ||
+        throw(DimensionMismatch(
+            "expected $(length(first(knn.X_buffer))) features, got $(length(x))"
+        ))
 
     # Find k nearest neighbors
     neighbors, distances = find_neighbors(knn, x)
@@ -107,6 +118,10 @@ function predict_proba(knn::KNN{T}, x::AbstractVector) where {T}
     end
 
     x = collect(T, x)
+    length(x) == length(first(knn.X_buffer)) ||
+        throw(DimensionMismatch(
+            "expected $(length(first(knn.X_buffer))) features, got $(length(x))"
+        ))
     neighbors, distances = find_neighbors(knn, x)
 
     # Compute class probabilities from neighbor votes
@@ -182,4 +197,3 @@ function vote_proba(knn::KNN{T}, neighbors::Vector{Int}, distances::Vector{<:Rea
 
     return vote_counts
 end
-
