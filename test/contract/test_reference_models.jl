@@ -1,6 +1,7 @@
 using OnlineML
-using OnlineML.Bayes: GaussianNB, classes
-using OnlineML.Linear: LogisticRegression, Regression, coef
+using OnlineML.Bayes: BernoulliNB, GaussianNB, MultinomialNB, classes
+using OnlineML.Linear:
+    LogisticRegression, PassiveAggressive, Perceptron, Regression, coef
 
 mutable struct ReferenceOneShot{T}
     data::T
@@ -54,6 +55,30 @@ end
         [([0.1], 0), ([0.9], 1)],
         [0.5],
     )
+    test_common_incremental_contract(
+        Perceptron,
+        [([-1.0], 0), ([1.0], 1)],
+        [([-2.0], 0), ([2.0], 1)],
+        [0.5],
+    )
+    test_common_incremental_contract(
+        PassiveAggressive,
+        [([-1.0], 0), ([1.0], 1)],
+        [([-2.0], 0), ([2.0], 1)],
+        [0.5],
+    )
+    test_common_incremental_contract(
+        BernoulliNB,
+        [([0.0], 0), ([1.0], 1)],
+        [([0.0], 0), ([1.0], 1)],
+        [1.0],
+    )
+    test_common_incremental_contract(
+        MultinomialNB,
+        [([1.0], 0), ([2.0], 1)],
+        [([2.0], 0), ([1.0], 1)],
+        [1.0],
+    )
 end
 
 @testset "Regression has a mergeable OnlineStats state" begin
@@ -104,4 +129,35 @@ end
     fit_batch!(reverse_order, reverse(observations))
 
     @test value(forward) != value(reverse_order)
+end
+
+@testset "Online linear classifiers are order-sensitive" begin
+    observations = [
+        ([0.0], 1),
+        ([1.0], 1),
+        ([3.0], 0),
+    ]
+
+    for factory in (Perceptron, PassiveAggressive)
+        forward = factory()
+        reverse_order = factory()
+        fit_batch!(forward, observations)
+        fit_batch!(reverse_order, reverse(observations))
+        @test value(forward) != value(reverse_order)
+    end
+end
+
+@testset "Discrete Naive Bayes discovers classes and trailing features" begin
+    for factory in (BernoulliNB, MultinomialNB)
+        model = factory()
+        fit_batch!(model, [([1.0], 0), ([0.0], 1), ([1.0], 2)])
+        @test Set(classes(model)) == Set((0, 1, 2))
+
+        fit!(model, ([1.0, 2.0], 0))
+        @test length(value(model)[0]) == 2
+
+        probabilities = OnlineML.predict_proba(model, [1.0, 1.0])
+        @test Set(keys(probabilities)) == Set((0, 1, 2))
+        @test sum(values(probabilities)) ≈ 1.0
+    end
 end
