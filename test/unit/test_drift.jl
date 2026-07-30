@@ -74,17 +74,18 @@ using .Linear: LogisticRegression
         # DDM test
         ddm = DDM(min_instances=20)
 
-        # Low error rate period
-        for _ in 1:50
-            error = rand() < 0.1 ? 1.0 : 0.0  # 10% error
+        # Low error rate period: exactly 10% errors
+        low_error_period = repeat(
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0],
+            5,
+        )
+        for error in low_error_period
             fit!(ddm, error)
         end
-        initial_status = status(ddm)
 
-        # High error rate period
+        # High error rate period: exactly 80% errors
         drift_detected = false
-        for _ in 1:100
-            error = rand() < 0.8 ? 1.0 : 0.0  # 80% error
+        for error in repeat([1.0, 1.0, 1.0, 1.0, 0.0], 20)
             fit!(ddm, error)
             if detected_drift(ddm)
                 drift_detected = true
