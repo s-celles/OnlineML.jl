@@ -1,6 +1,7 @@
 using Random: MersenneTwister
 using Serialization: deserialize, serialize
-using OnlineML.Anomaly: LODA, RobustRandomCutForest, fit_score!
+using OnlineML.Anomaly: GaussianProjectionDetector, RobustRandomCutForest,
+    fit_score!
 using OnlineML.Ensemble: Bagging
 using OnlineML.Linear: LogisticRegression
 
@@ -34,7 +35,7 @@ end
 end
 
 @testset "anomaly detectors preserve RNG and retained state" begin
-    loda = LODA(n_projections=4, rng=MersenneTwister(22))
+    loda = GaussianProjectionDetector(n_projections=4, rng=MersenneTwister(22))
     fit_batch!(loda, [[0.0, 0.0], [0.1, 0.1], [0.2, 0.2]])
     restored_loda = serialization_roundtrip(loda)
 

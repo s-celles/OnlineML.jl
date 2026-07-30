@@ -138,7 +138,7 @@ explicit prediction-aggregation and checkpoint protocol.
 | Detector | Order-sensitive | Mergeable state | Memory bound | Score contract | Maturity |
 |:--|:--|:--|:--|:--|:--|
 | `HalfSpaceTrees` | Yes, stochastic | No | Fixed trees and depth | Normalized to `[0, 1]` | Lifecycle qualified |
-| `LODA` | Yes, stochastic | No | Projections × features | Normalized to `[0, 1]` | Non-conforming Gaussian approximation |
+| `GaussianProjectionDetector` (`LODA` alias) | Yes, stochastic | No | Projections × features | Normalized to `[0, 1]` | Lifecycle qualified Gaussian approximation |
 | `RobustRandomCutForest` | Yes, stochastic | No | Trees × `tree_size` | Raw codisplacement of retained points | Experimental approximation |
 
 The assertions in `test/contract/test_anomaly_capabilities.jl` verify
@@ -147,8 +147,10 @@ non-mutating scoring, reset, deterministic construction from explicit RNG
 state, and configured memory bounds. `reset!` clears learned state but does not
 rewind an RNG stream.
 
-`LODA` uses Gaussian random projections and running variance rather than the
-original algorithm's adaptive histogram density estimator.
+`GaussianProjectionDetector` uses dense Gaussian random projections and running
+variance. The legacy `LODA` binding is only a compatibility alias; it does not
+claim conformance with LODA's sparse projections, adaptive histogram density
+estimator, or log-density score.
 `RobustRandomCutForest.score` can only score a point retained in its sliding
 window; callers must use `fit_score!` to insert and then score a new point.
 The current random-cut-tree implementation has not been independently

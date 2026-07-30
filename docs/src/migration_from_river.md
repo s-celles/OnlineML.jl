@@ -310,7 +310,7 @@ using OnlineML.Anomaly
 
 model = HalfSpaceTrees(
     n_trees=10,
-    max_depth=8,
+    height=8,
     window_size=250
 )
 score = score_one(model, x)

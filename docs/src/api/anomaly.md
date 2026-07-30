@@ -8,18 +8,21 @@ Online anomaly detection algorithms.
 OnlineML.Anomaly.HalfSpaceTrees
 ```
 
-## LODA
+## Gaussian projection detector
 
 ```@docs
-OnlineML.Anomaly.LODA
+OnlineML.Anomaly.GaussianProjectionDetector
 ```
+
+`LODA` is retained as a compatibility alias. It does not currently implement
+the histogram-based LODA algorithm described by Pevný.
 
 ## Examples
 
 ```julia
 using OnlineML.Anomaly: HalfSpaceTrees
 
-model = HalfSpaceTrees(n_trees=10, max_depth=8, window_size=250)
+model = HalfSpaceTrees(n_trees=10, height=8, window_size=250)
 
 for x in data_stream
     score = fit_score!(model, x)

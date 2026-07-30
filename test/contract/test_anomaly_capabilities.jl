@@ -1,5 +1,6 @@
 using Random
-using OnlineML.Anomaly: HalfSpaceTrees, LODA, RobustRandomCutForest,
+using OnlineML.Anomaly: GaussianProjectionDetector, HalfSpaceTrees, LODA,
+    RobustRandomCutForest,
     current_size, fit_score!
 
 @testset "constructor and schema constraints" begin
@@ -7,12 +8,13 @@ using OnlineML.Anomaly: HalfSpaceTrees, LODA, RobustRandomCutForest,
     @test_throws ArgumentError HalfSpaceTrees(height=-1)
     @test_throws ArgumentError HalfSpaceTrees(window_size=0)
     @test_throws ArgumentError LODA(n_projections=0)
+    @test LODA === GaussianProjectionDetector
     @test_throws ArgumentError RobustRandomCutForest(n_trees=0)
     @test_throws ArgumentError RobustRandomCutForest(tree_size=0)
 
     for model in (
         HalfSpaceTrees(n_trees=2, height=2, rng=MersenneTwister(1)),
-        LODA(n_projections=2, rng=MersenneTwister(1)),
+        GaussianProjectionDetector(n_projections=2, rng=MersenneTwister(1)),
         RobustRandomCutForest(n_trees=2, tree_size=3, seed=1),
     )
         fit!(model, [1.0, 2.0])
@@ -24,7 +26,7 @@ end
 @testset "single-pass delta batches and reset" begin
     models = (
         HalfSpaceTrees(n_trees=2, height=2, window_size=3, rng=MersenneTwister(2)),
-        LODA(n_projections=2, rng=MersenneTwister(2)),
+        GaussianProjectionDetector(n_projections=2, rng=MersenneTwister(2)),
         RobustRandomCutForest(n_trees=2, tree_size=3, seed=2),
     )
 
@@ -51,7 +53,7 @@ end
     fit_batch!(hst, ([Float64(i), 0.0] for i in 1:10))
     @test length(hst.trees) == 3
 
-    loda = LODA(n_projections=4, rng=MersenneTwister(3))
+    loda = GaussianProjectionDetector(n_projections=4, rng=MersenneTwister(3))
     fit_batch!(loda, ([Float64(i), 0.0] for i in 1:10))
     @test length(loda.projections) == 4
     @test length(loda.stats) == 4
@@ -66,8 +68,8 @@ end
 @testset "deterministic construction with explicit RNG state" begin
     hst1 = HalfSpaceTrees(n_trees=3, height=2, rng=MersenneTwister(4))
     hst2 = HalfSpaceTrees(n_trees=3, height=2, rng=MersenneTwister(4))
-    loda1 = LODA(n_projections=3, rng=MersenneTwister(4))
-    loda2 = LODA(n_projections=3, rng=MersenneTwister(4))
+    loda1 = GaussianProjectionDetector(n_projections=3, rng=MersenneTwister(4))
+    loda2 = GaussianProjectionDetector(n_projections=3, rng=MersenneTwister(4))
 
     data = [[0.0, 0.0], [0.5, 0.5], [1.0, 1.0]]
     fit_batch!(hst1, data)

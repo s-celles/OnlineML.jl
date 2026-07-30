@@ -38,7 +38,7 @@ y_pred = predict(model, x_new)
 - **Instance-Based**: KNN with sliding window
 - **Naive Bayes**: GaussianNB, MultinomialNB, BernoulliNB
 - **Clustering**: KMeans, DenStream
-- **Anomaly Detection**: HalfSpaceTrees, LODA
+- **Anomaly Detection**: HalfSpaceTrees, GaussianProjectionDetector, RRCF
 - **Transformers**: StandardScaler, MinMaxScaler, OneHotEncoder, TargetEncoder
 - **Drift Detection**: ADWIN, DDM, EDDM, PageHinkley
 - **Evaluation**: progressive_val_score, holdout_score

@@ -1,37 +1,39 @@
-# LODA - Lightweight Online Detector of Anomalies
+# Gaussian random-projection anomaly detector
 # Based on: Pevný, T. (2016). Loda: Lightweight on-line detector of anomalies.
 # Machine Learning, 102(2), 275-304.
 
 using OnlineStats: Variance
 
 """
-    LODA{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
+    GaussianProjectionDetector{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
 
-Lightweight Online Detector of Anomalies using random projections
-and Gaussian density estimation.
+Online anomaly detector using random projections and Gaussian density
+estimation.
 
 # Parameters
 - `n_projections::Int = 10` - Number of random projections
 
 # Algorithm
-LODA works by:
+The detector works by:
 1. Projecting high-dimensional data onto random one-dimensional subspaces
 2. Maintaining Gaussian statistics (mean, variance) for each projection
 3. Computing anomaly scores as average Mahalanobis distance across projections
 
-This is a Gaussian random-projection approximation. It does not implement
-LODA's original adaptive histogram density estimator.
+This detector is not LODA: it does not implement LODA's sparse projections,
+adaptive histograms, or log-density score. `LODA` remains available as a
+compatibility alias.
 
 # Example
 ```julia
-model = LODA(n_projections=20)
+model = GaussianProjectionDetector(n_projections=20)
 for x in normal_data
     fit!(model, x)
 end
 score = score_one(model, suspicious_point)  # Higher score = more anomalous
 ```
 """
-mutable struct LODA{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
+mutable struct GaussianProjectionDetector{T<:AbstractFloat} <:
+               UnsupervisedLearner{AbstractVector{T}}
     n_projections::Int
     projections::Vector{Vector{T}}
     stats::Vector{Variance}  # Running mean and variance for each projection
@@ -39,7 +41,7 @@ mutable struct LODA{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
     initialized::Bool
     rng::Random.AbstractRNG
 
-    function LODA{T}(;
+    function GaussianProjectionDetector{T}(;
         n_projections::Int=10,
         rng::Random.AbstractRNG=Random.default_rng()
     ) where {T<:AbstractFloat}
@@ -55,10 +57,22 @@ mutable struct LODA{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
     end
 end
 
-LODA(; kwargs...) = LODA{Float64}(; kwargs...)
+GaussianProjectionDetector(; kwargs...) =
+    GaussianProjectionDetector{Float64}(; kwargs...)
+
+"""
+    LODA
+
+Compatibility alias for [`GaussianProjectionDetector`](@ref).
+
+The historical `LODA` name was inaccurate because this implementation uses
+Gaussian projection statistics instead of LODA's histogram density estimator.
+New code should use `GaussianProjectionDetector`.
+"""
+const LODA = GaussianProjectionDetector
 
 # Initialize projections when we see the first data point
-function initialize!(loda::LODA{T}, d::Int) where {T}
+function initialize!(loda::GaussianProjectionDetector{T}, d::Int) where {T}
     # Generate random sparse projections
     # Each projection is a random direction
     for _ in 1:loda.n_projections
@@ -73,7 +87,7 @@ function initialize!(loda::LODA{T}, d::Int) where {T}
 end
 
 # OnlineStatsBase interface
-function OnlineStatsBase._fit!(loda::LODA{T}, x) where {T}
+function OnlineStatsBase._fit!(loda::GaussianProjectionDetector{T}, x) where {T}
     x = collect(T, x)
     d = length(x)
 
@@ -95,10 +109,11 @@ function OnlineStatsBase._fit!(loda::LODA{T}, x) where {T}
     return loda
 end
 
-OnlineStatsBase.value(loda::LODA) = (projections=loda.projections, stats=loda.stats)
-OnlineStatsBase.nobs(loda::LODA) = loda.n
+OnlineStatsBase.value(loda::GaussianProjectionDetector) =
+    (projections=loda.projections, stats=loda.stats)
+OnlineStatsBase.nobs(loda::GaussianProjectionDetector) = loda.n
 
-function reset!(loda::LODA{T}) where {T}
+function reset!(loda::GaussianProjectionDetector{T}) where {T}
     empty!(loda.projections)
     empty!(loda.stats)
     loda.n = 0
@@ -112,13 +127,13 @@ using OnlineStats: mean, var
 # Anomaly score functions
 
 """
-    score_one(loda::LODA, x) -> Float64
+    score_one(loda::GaussianProjectionDetector, x) -> Float64
 
 Compute anomaly score for observation x.
 Higher scores indicate more anomalous observations.
 Returns a score in [0, 1] range.
 """
-function score_one(loda::LODA{T}, x::AbstractVector) where {T}
+function score_one(loda::GaussianProjectionDetector{T}, x::AbstractVector) where {T}
     if !loda.initialized
         return 0.5  # Return neutral score for uninitialized model
     end
@@ -153,4 +168,4 @@ end
 # Dot product helper
 using LinearAlgebra: dot
 
-export LODA
+export GaussianProjectionDetector, LODA
