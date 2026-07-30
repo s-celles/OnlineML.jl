@@ -53,6 +53,9 @@ mutable struct HalfSpaceTrees <: UnsupervisedLearner{AbstractVector}
         window_size::Int = 250,
         rng::Random.AbstractRNG = Random.default_rng()
     )
+        n_trees > 0 || throw(ArgumentError("n_trees must be positive"))
+        height >= 0 || throw(ArgumentError("height must be non-negative"))
+        window_size > 0 || throw(ArgumentError("window_size must be positive"))
         new(n_trees, height, window_size, HSTree[], 0, rng)
     end
 end
@@ -64,6 +67,10 @@ function OnlineStatsBase._fit!(hst::HalfSpaceTrees, x)
     # Initialize trees on first observation
     if isempty(hst.trees)
         init_trees!(hst, x)
+    else
+        expected = length(first(hst.trees).min_vals)
+        length(x) == expected ||
+            throw(DimensionMismatch("expected $expected features, got $(length(x))"))
     end
 
     # Update each tree
@@ -161,6 +168,9 @@ function score(hst::HalfSpaceTrees, x::AbstractVector)
     end
 
     x = collect(Float64, x)
+    expected = length(first(hst.trees).min_vals)
+    length(x) == expected ||
+        throw(DimensionMismatch("expected $expected features, got $(length(x))"))
     total_score = 0.0
 
     for tree in hst.trees
@@ -194,6 +204,7 @@ Return anomaly score normalized to [0, 1] range.
 Higher scores indicate more anomalous observations.
 """
 function score_one(hst::HalfSpaceTrees, x::AbstractVector)
+    isempty(hst.trees) && return 0.5
     raw_score = score(hst, x)
     # Use sigmoid to normalize
     # Lower raw scores = more anomalous in HS-Trees

@@ -131,5 +131,31 @@ Ensemble states must not be merged or replaced by averaged parameters.
 Distribution can assign independently owned estimators to workers only with an
 explicit prediction-aggregation and checkpoint protocol.
 
+## Experimental anomaly-detector capabilities
+
+| Detector | Order-sensitive | Mergeable state | Memory bound | Score contract | Maturity |
+|:--|:--|:--|:--|:--|:--|
+| `HalfSpaceTrees` | Yes, stochastic | No | Fixed trees and depth | Normalized to `[0, 1]` | Lifecycle qualified |
+| `LODA` | Yes, stochastic | No | Projections × features | Normalized to `[0, 1]` | Non-conforming Gaussian approximation |
+| `RobustRandomCutForest` | Yes, stochastic | No | Trees × `tree_size` | Raw codisplacement of retained points | Experimental approximation |
+
+The assertions in `test/contract/test_anomaly_capabilities.jl` verify
+constructor and fixed-schema constraints, one-pass delta consumption,
+non-mutating scoring, reset, deterministic construction from explicit RNG
+state, and configured memory bounds. `reset!` clears learned state but does not
+rewind an RNG stream.
+
+`LODA` uses Gaussian random projections and running variance rather than the
+original algorithm's adaptive histogram density estimator.
+`RobustRandomCutForest.score` can only score a point retained in its sliding
+window; callers must use `fit_score!` to insert and then score a new point.
+The current random-cut-tree implementation has not been independently
+qualified for algorithmic equivalence to RRCF. These limitations are part of
+the public maturity statement, not capabilities suitable for generic traits.
+
+Anomaly-detector states are order-sensitive and expose no mathematically valid
+merge. Distributed execution therefore requires single-owner partitioning or
+explicit ensemble aggregation, not parameter averaging.
+
 General pipelines, resampling, tuning, and batch evaluation belong to MLJ
 rather than this capability layer.

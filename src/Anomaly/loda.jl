@@ -19,6 +19,9 @@ LODA works by:
 2. Maintaining Gaussian statistics (mean, variance) for each projection
 3. Computing anomaly scores as average Mahalanobis distance across projections
 
+This is a Gaussian random-projection approximation. It does not implement
+LODA's original adaptive histogram density estimator.
+
 # Example
 ```julia
 model = LODA(n_projections=20)
@@ -40,6 +43,7 @@ mutable struct LODA{T<:AbstractFloat} <: UnsupervisedLearner{AbstractVector{T}}
         n_projections::Int=10,
         rng::Random.AbstractRNG=Random.default_rng()
     ) where {T<:AbstractFloat}
+        n_projections > 0 || throw(ArgumentError("n_projections must be positive"))
         new{T}(
             n_projections,
             Vector{T}[],
@@ -75,6 +79,10 @@ function OnlineStatsBase._fit!(loda::LODA{T}, x) where {T}
 
     if !loda.initialized
         initialize!(loda, d)
+    else
+        expected = length(first(loda.projections))
+        d == expected ||
+            throw(DimensionMismatch("expected $expected features, got $d"))
     end
 
     # Project onto each random direction and update statistics
@@ -111,11 +119,15 @@ Higher scores indicate more anomalous observations.
 Returns a score in [0, 1] range.
 """
 function score_one(loda::LODA{T}, x::AbstractVector) where {T}
-    if !loda.initialized || loda.n < 2
+    if !loda.initialized
         return 0.5  # Return neutral score for uninitialized model
     end
 
     x = collect(T, x)
+    expected = length(first(loda.projections))
+    length(x) == expected ||
+        throw(DimensionMismatch("expected $expected features, got $(length(x))"))
+    loda.n < 2 && return 0.5
     total_z_score = zero(T)
 
     for i in 1:loda.n_projections

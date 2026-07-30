@@ -65,6 +65,11 @@ end
 # OnlineStatsBase interface
 function OnlineStatsBase._fit!(rrcf::RobustRandomCutForest, x::AbstractVector)
     point = collect(Float64, x)
+    if !isempty(rrcf.point_buffer)
+        expected = length(first(rrcf.point_buffer))
+        length(point) == expected ||
+            throw(DimensionMismatch("expected $expected features, got $(length(point))"))
+    end
     point_idx = rrcf.next_idx
     rrcf.next_idx += 1
 
@@ -116,6 +121,11 @@ For scoring new points, use `fit_score!`.
 function score(rrcf::RobustRandomCutForest, x::AbstractVector)
     # Find the point index by matching
     point = collect(Float64, x)
+    if !isempty(rrcf.point_buffer)
+        expected = length(first(rrcf.point_buffer))
+        length(point) == expected ||
+            throw(DimensionMismatch("expected $expected features, got $(length(point))"))
+    end
 
     for (i, (stored_point, idx)) in enumerate(zip(rrcf.point_buffer, rrcf.point_indices))
         if stored_point ≈ point

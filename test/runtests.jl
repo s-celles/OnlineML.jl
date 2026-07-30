@@ -94,6 +94,10 @@ using Documenter
         include("contract/test_ensemble_capabilities.jl")
     end
 
+    @testset "Contract: Anomaly capabilities" begin
+        include("contract/test_anomaly_capabilities.jl")
+    end
+
     # Integration tests
     @testset "Integration: Pipeline" begin
         include("integration/test_pipeline.jl")
