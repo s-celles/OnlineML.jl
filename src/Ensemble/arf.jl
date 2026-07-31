@@ -1,13 +1,13 @@
 # Adaptive Random Forest (ARF) - Drift-aware ensemble
 
 """
-    ARFEstimator{L,D}
+    DriftAwareEstimator{L,D}
 
-A single estimator within the Adaptive Random Forest.
+A single estimator within `DriftAwareBagging`.
 Contains the model, its drift detector, warning detector,
 and optionally a background model.
 """
-mutable struct ARFEstimator{L,D}
+mutable struct DriftAwareEstimator{L,D}
     model::L
     drift_detector::D
     warning_detector::D
@@ -15,7 +15,7 @@ mutable struct ARFEstimator{L,D}
     n_drifts::Int
     in_warning::Bool
 
-    function ARFEstimator(base_learner, detector_factory)
+    function DriftAwareEstimator(base_learner, detector_factory)
         model = base_learner()
         drift_detector = detector_factory()
         warning_detector = detector_factory()
@@ -26,17 +26,21 @@ mutable struct ARFEstimator{L,D}
 end
 
 """
-    AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
+    DriftAwareBagging{L,D} <: Learner{AbstractVector, Any}
 
-Adaptive Random Forest (ARF) for concept drift handling.
+Poisson online bagging with per-learner drift adaptation.
 
-ARF combines:
+`DriftAwareBagging` combines:
 - Online bagging with Poisson resampling
 - Per-tree drift detection
 - Background tree replacement on drift
 
-When drift is detected on a tree, it is replaced with a background
-tree that has been training since the warning was first detected.
+When drift is detected on a learner, it is replaced with a background
+learner that has been training since the warning was first detected.
+
+This implementation does not perform random feature-subspace selection and is
+therefore not an implementation of Adaptive Random Forest. The historical name
+`AdaptiveRandomForest` remains as a compatibility alias.
 
 # Parameters
 - `base_learner` - A callable that creates a new learner instance
@@ -46,17 +50,16 @@ tree that has been training since the warning was first detected.
 
 # Example
 ```jldoctest
-julia> arf = AdaptiveRandomForest(() -> HoeffdingTree(), () -> DDM(), n_estimators=3)
-AdaptiveRandomForest: n=0 | value=ARFEstimator{HoeffdingTree{Float64}, DDM}[ARFEstimator{HoeffdingTree{Float64}, DDM}(HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), DDM: n=0 | value=0.0, DDM: n=0 | value=0.0, nothing, 0, false), ARFEstimator{HoeffdingTree{Float64}, DDM}(HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), DDM: n=0 | value=0.0, DDM: n=0 | value=0.0, nothing, 0, false), ARFEstimator{HoeffdingTree{Float64}, DDM}(HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), DDM: n=0 | value=0.0, DDM: n=0 | value=0.0, nothing, 0, false)]
+julia> ensemble = DriftAwareBagging(() -> HoeffdingTree(), () -> DDM(), n_estimators=1);
 
-julia> fit!(arf, ([1.0, 2.0], 1));
+julia> fit!(ensemble, ([1.0, 2.0], 1));
 
-julia> nobs(arf)
+julia> nobs(ensemble)
 1
 ```
 """
-mutable struct AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
-    estimators::Vector{ARFEstimator{L,D}}
+mutable struct DriftAwareBagging{L,D} <: Learner{AbstractVector, Any}
+    estimators::Vector{DriftAwareEstimator{L,D}}
     base_learner::Function
     detector::Function
     n_estimators::Int
@@ -64,7 +67,7 @@ mutable struct AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
     n::Int
     rng::Random.AbstractRNG
 
-    function AdaptiveRandomForest(
+    function DriftAwareBagging(
         base_learner,
         detector;
         n_estimators::Int = 10,
@@ -74,7 +77,7 @@ mutable struct AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
         n_estimators > 0 || throw(ArgumentError("n_estimators must be positive"))
         isfinite(lambda) && lambda > 0 ||
             throw(ArgumentError("lambda must be finite and positive"))
-        estimators = [ARFEstimator(base_learner, detector) for _ in 1:n_estimators]
+        estimators = [DriftAwareEstimator(base_learner, detector) for _ in 1:n_estimators]
         L = typeof(estimators[1].model)
         D = typeof(estimators[1].drift_detector)
         new{L,D}(estimators, base_learner, detector, n_estimators, lambda, 0, rng)
@@ -82,7 +85,7 @@ mutable struct AdaptiveRandomForest{L,D} <: Learner{AbstractVector, Any}
 end
 
 # OnlineStatsBase interface
-function OnlineStatsBase._fit!(arf::AdaptiveRandomForest, xy::Tuple)
+function OnlineStatsBase._fit!(arf::DriftAwareBagging, xy::Tuple)
     x, y = xy
 
     for est in arf.estimators
@@ -144,10 +147,10 @@ function OnlineStatsBase._fit!(arf::AdaptiveRandomForest, xy::Tuple)
     return arf
 end
 
-OnlineStatsBase.value(arf::AdaptiveRandomForest) = arf.estimators
-OnlineStatsBase.nobs(arf::AdaptiveRandomForest) = arf.n
+OnlineStatsBase.value(arf::DriftAwareBagging) = arf.estimators
+OnlineStatsBase.nobs(arf::DriftAwareBagging) = arf.n
 
-function reset!(arf::AdaptiveRandomForest)
+function reset!(arf::DriftAwareBagging)
     for est in arf.estimators
         reset!(est.model)
         reset!(est.drift_detector)
@@ -161,7 +164,7 @@ function reset!(arf::AdaptiveRandomForest)
 end
 
 # Prediction - majority voting
-function predict(arf::AdaptiveRandomForest, x)
+function predict(arf::DriftAwareBagging, x)
     if arf.n == 0
         return 0
     end
@@ -176,7 +179,7 @@ function predict(arf::AdaptiveRandomForest, x)
 end
 
 # Averaged probability predictions
-function predict_proba(arf::AdaptiveRandomForest, x)
+function predict_proba(arf::DriftAwareBagging, x)
     if arf.n == 0
         return Dict{Any, Float64}()
     end
@@ -204,5 +207,9 @@ function predict_proba(arf::AdaptiveRandomForest, x)
 end
 
 # Inspection methods
-total_drifts(arf::AdaptiveRandomForest) = sum(est.n_drifts for est in arf.estimators)
-per_tree_drifts(arf::AdaptiveRandomForest) = [est.n_drifts for est in arf.estimators]
+total_drifts(arf::DriftAwareBagging) = sum(est.n_drifts for est in arf.estimators)
+per_learner_drifts(arf::DriftAwareBagging) = [est.n_drifts for est in arf.estimators]
+
+const ARFEstimator = DriftAwareEstimator
+const AdaptiveRandomForest = DriftAwareBagging
+const per_tree_drifts = per_learner_drifts

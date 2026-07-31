@@ -38,7 +38,7 @@ OnlineML.generate
 
 - [Linear Models](linear.md) - Regression, classification
 - [Trees](trees.md) - Hoeffding trees
-- [Ensemble](ensemble.md) - Bagging, AdaptiveRandomForest
+- [Ensemble](ensemble.md) - Bagging, Leveraging Bagging, Drift-Aware Bagging
 - [Instance](instance.md) - KNN
 - [Bayes](bayes.md) - Naive Bayes classifiers
 - [Cluster](cluster.md) - KMeans

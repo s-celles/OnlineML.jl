@@ -115,7 +115,7 @@ original event order.
 |:--|:--|:--|:--|:--|:--|
 | `Bagging` | Yes, stochastic | No | Depends on base learners | No | Lifecycle qualified |
 | `LeveragingBagging` | Yes, stochastic | No | Depends on base learners | No | Poisson-resampling approximation |
-| `AdaptiveRandomForest` | Yes, stochastic | No | Depends on base learners and background models | Yes | Non-conforming ARF approximation |
+| `DriftAwareBagging` (`AdaptiveRandomForest` alias) | Yes, stochastic | No | Depends on base learners and background models | Yes | Lifecycle qualified; not ARF |
 
 The assertions in `test/contract/test_ensemble_capabilities.jl` verify
 constructor constraints, one-pass delta consumption, prediction without
@@ -125,10 +125,11 @@ with identical initial states gives reproducible stochastic updates. `reset!`
 clears learned models and counters but does not rewind the RNG stream.
 
 `LeveragingBagging` currently implements higher-rate Poisson resampling but not
-the complete family of leveraging-bagging strategies. `AdaptiveRandomForest`
-adds per-estimator detectors and background-model replacement, but it does not
-implement random feature subspaces. Its name is retained for compatibility and
-must not be interpreted as full algorithmic conformance.
+the complete family of leveraging-bagging strategies. `DriftAwareBagging` adds
+per-estimator detectors and background-model replacement, but it does not
+implement random feature subspaces. The historical `AdaptiveRandomForest` name
+is retained as an alias and must not be interpreted as full algorithmic
+conformance.
 
 Ensemble states must not be merged or replaced by averaged parameters.
 Distribution can assign independently owned estimators to workers only with an

@@ -8,10 +8,10 @@ Online ensemble learning algorithms.
 OnlineML.Ensemble.Bagging
 ```
 
-## Adaptive Random Forest
+## Drift-Aware Bagging
 
 ```@docs
-OnlineML.Ensemble.AdaptiveRandomForest
+OnlineML.Ensemble.DriftAwareBagging
 ```
 
 ## Leveraging Bagging
@@ -38,13 +38,17 @@ end
 y_pred = predict(model, x_new)
 ```
 
-### Adaptive Random Forest
+### Drift-Aware Bagging
 
 ```julia
-using OnlineML.Ensemble: AdaptiveRandomForest
+using OnlineML.Drift: DDM
+using OnlineML.Ensemble: DriftAwareBagging
+using OnlineML.Trees: HoeffdingTree
 
-# ARF automatically handles concept drift
-model = AdaptiveRandomForest(
+# Each base learner is monitored and replaced after detected drift.
+model = DriftAwareBagging(
+    () -> HoeffdingTree(),
+    () -> DDM(),
     n_estimators=10,
     lambda=6.0  # Poisson resampling weight
 )

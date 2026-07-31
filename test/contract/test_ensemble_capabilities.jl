@@ -1,6 +1,12 @@
 using OnlineML
 using OnlineML.Drift: DDM
-using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, LeveragingBagging
+using OnlineML.Ensemble:
+    AdaptiveRandomForest,
+    Bagging,
+    DriftAwareBagging,
+    LeveragingBagging,
+    per_learner_drifts,
+    per_tree_drifts
 using OnlineML.Linear: LogisticRegression
 using OnlineStatsBase
 using Random: MersenneTwister
@@ -48,7 +54,7 @@ OnlineML.reset!(learner::LastLabelLearner) =
 
 learned_observations(ensemble::Union{Bagging,LeveragingBagging}) =
     sum(nobs, ensemble.learners)
-learned_observations(ensemble::AdaptiveRandomForest) =
+learned_observations(ensemble::DriftAwareBagging) =
     sum(estimator -> nobs(estimator.model), ensemble.estimators)
 
 @testset "constructor validation" begin
@@ -58,10 +64,10 @@ learned_observations(ensemble::AdaptiveRandomForest) =
     for factory in (
         () -> Bagging(base; n_estimators=0),
         () -> LeveragingBagging(base; n_estimators=0),
-        () -> AdaptiveRandomForest(base, detector; n_estimators=0),
+        () -> DriftAwareBagging(base, detector; n_estimators=0),
         () -> Bagging(base; lambda=0.0),
         () -> LeveragingBagging(base; lambda=-1.0),
-        () -> AdaptiveRandomForest(base, detector; lambda=Inf),
+        () -> DriftAwareBagging(base, detector; lambda=Inf),
     )
         @test_throws ArgumentError factory()
     end
@@ -85,7 +91,7 @@ end
             n_estimators=3,
             rng=MersenneTwister(11),
         ),
-        () -> AdaptiveRandomForest(
+        () -> DriftAwareBagging(
             () -> LogisticRegression(),
             () -> DDM(min_instances=10);
             n_estimators=3,
@@ -123,7 +129,7 @@ end
 end
 
 @testset "ARF drift error is test-then-train" begin
-    forest = AdaptiveRandomForest(
+    forest = DriftAwareBagging(
         () -> LastLabelLearner(0, 0),
         () -> RecordingDetector(Float64[]);
         n_estimators=1,
@@ -143,4 +149,9 @@ end
     @test first(estimator.drift_detector.observations) == 1.0
     @test first(estimator.warning_detector.observations) == 1.0
     @test value(estimator.model) == 1
+end
+
+@testset "historical ARF name is a compatibility alias" begin
+    @test AdaptiveRandomForest === DriftAwareBagging
+    @test per_tree_drifts === per_learner_drifts
 end
