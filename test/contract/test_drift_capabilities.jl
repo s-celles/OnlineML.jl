@@ -87,6 +87,25 @@ end
     @test DriftDetected in events
 end
 
+@testset "EDDM tracks inter-error distance statistics" begin
+    detector = EDDM(min_instances=30)
+    error_indices = cumsum([1, 2, 4, 4, 4, 5, 5, 7, 9])
+
+    for i in 1:last(error_indices)
+        fit!(detector, i in error_indices ? 1.0 : 0.0)
+    end
+
+    distances = Float64[2, 4, 4, 4, 5, 5, 7, 9]
+    expected_mean = sum(distances) / length(distances)
+    expected_std = sqrt(sum((distances .- expected_mean) .^ 2) / length(distances))
+
+    @test detector.n_errors == length(error_indices)
+    @test detector.mean_distance ≈ expected_mean
+    @test detector.std_distance ≈ expected_std
+    @test value(detector) ≈ expected_mean
+    @test status(detector) == NoDrift
+end
+
 @testset "PageHinkley reports one abrupt shift, not a stable level" begin
     detector = PageHinkley(min_instances=10, threshold=5.0)
     foreach(x -> fit!(detector, x), zeros(30))

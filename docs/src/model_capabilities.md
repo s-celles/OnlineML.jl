@@ -84,7 +84,7 @@ and parameter averaging is not a valid distributed training strategy.
 |:--|:--|:--|:--|:--|:--|
 | `ADWIN` | Finite real-valued | Exact adaptive window | No | Shrinks on drift | Cut-point lifecycle qualified |
 | `DDM` | Binary error | Constant | Yes | On drift | Deterministic lifecycle qualified |
-| `EDDM` | Binary error | Constant | Yes | On drift | Unqualified dispersion approximation |
+| `EDDM` | Binary error | Constant | Yes | On drift | Inter-error statistics qualified |
 | `PageHinkley` | Real-valued | Constant | No | On drift | Deterministic lifecycle qualified |
 | `KSWIN` | Real-valued | Sliding window bounded by `window_size` | Yes | No | Deterministic lifecycle qualified |
 
@@ -97,9 +97,10 @@ bounds and response to a separated deterministic distribution.
 `ADWIN` evaluates every admissible cut point using a variance-sensitive bound
 and discards obsolete prefixes. It retains exact observations rather than the
 paper's bucket-compressed optimization; its memory therefore follows the
-adaptive window and can grow on a stationary stream. `EDDM` does not yet have
-an independently verified dispersion update and should not be used as an
-algorithmic reference. For DDM, EDDM, and Page-Hinkley, `nobs` describes the
+adaptive window and can grow on a stationary stream. EDDM's running mean and
+population standard deviation are qualified against explicit inter-error
+distances; its warning/drift timing still lacks a cross-implementation oracle.
+For DDM, EDDM, and Page-Hinkley, `nobs` describes the
 current post-reset segment because their state is cleared after a detected
 drift. For ADWIN, `nobs` is the lifetime count and `window_size` is the retained
 adaptive window.

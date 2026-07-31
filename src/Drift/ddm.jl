@@ -129,9 +129,9 @@ Early Drift Detection Method.
 Similar to DDM but uses distance between errors instead of error rate,
 which can detect drift earlier.
 
-!!! warning "Experimental approximation"
-    The current dispersion update has not yet been qualified against an
-    independent EDDM reference implementation.
+The mean and population standard deviation are updated online over the
+observed distances between consecutive errors. Detection starts after
+`min_instances` errors, as specified by the original algorithm.
 
 # Parameters
 - `warning_level::Float64 = 0.95` - Threshold for warning (as ratio of max)
@@ -194,15 +194,17 @@ function OnlineStatsBase._fit!(eddm::EDDM, x::Real)
 
         if eddm.n_errors > 1
             distance = eddm.n - eddm.last_error_idx
+            n_distances = eddm.n_errors - 1
 
-            # Update running mean and std of distance
+            # Welford update over inter-error distances. Reconstructing M2 from
+            # the stored population standard deviation keeps the state compact.
             old_mean = eddm.mean_distance
-            eddm.mean_distance = old_mean + (distance - old_mean) / eddm.n_errors
-
-            if eddm.n_errors > 2
-                eddm.std_distance = sqrt(eddm.std_distance^2 +
-                    (distance - old_mean) * (distance - eddm.mean_distance))
-            end
+            old_m2 =
+                n_distances > 1 ? eddm.std_distance^2 * (n_distances - 1) : 0.0
+            eddm.mean_distance = old_mean + (distance - old_mean) / n_distances
+            new_m2 = old_m2 +
+                (distance - old_mean) * (distance - eddm.mean_distance)
+            eddm.std_distance = sqrt(max(new_m2 / n_distances, 0.0))
         end
 
         eddm.last_error_idx = eddm.n
