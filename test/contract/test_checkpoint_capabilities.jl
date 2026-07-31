@@ -1,6 +1,6 @@
 using Random: MersenneTwister
 using Serialization: deserialize, serialize
-using OnlineML.Anomaly: GaussianProjectionDetector, RobustRandomCutForest,
+using OnlineML.Anomaly: GaussianProjectionDetector, RandomCutForestApproximation,
     fit_score!
 using OnlineML.Ensemble: Bagging
 using OnlineML.Linear: LogisticRegression
@@ -45,7 +45,7 @@ end
     @test score_one(restored_loda, [1.0, 1.0]) == score_one(loda, [1.0, 1.0])
     @test restored_loda.projections == loda.projections
 
-    forest = RobustRandomCutForest(n_trees=3, tree_size=4, seed=23)
+    forest = RandomCutForestApproximation(n_trees=3, tree_size=4, seed=23)
     fit_batch!(forest, [[0.0], [1.0], [2.0]])
     restored_forest = serialization_roundtrip(forest)
 

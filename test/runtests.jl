@@ -152,7 +152,7 @@ using Documenter
             using .Instance: KNN
             using .Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
             using .Drift: ADWIN, DDM, EDDM, PageHinkley, KSWIN, status
-            using .Anomaly: HalfSpaceTrees, RobustRandomCutForest
+            using .Anomaly: HalfSpaceTrees, RandomCutForestApproximation, RobustRandomCutForest
             using .Ensemble: AdaptiveRandomForest, Bagging, LeveragingBagging
             using .Pipeline: OnlinePipeline
             using .Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate

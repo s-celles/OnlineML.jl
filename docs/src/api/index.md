@@ -42,7 +42,7 @@ OnlineML.generate
 - [Instance](instance.md) - KNN
 - [Bayes](bayes.md) - Naive Bayes classifiers
 - [Cluster](cluster.md) - KMeans
-- [Anomaly](anomaly.md) - HalfSpaceTrees, GaussianProjectionDetector, RRCF
+- [Anomaly](anomaly.md) - HalfSpaceTrees, GaussianProjectionDetector, RandomCutForestApproximation
 - [Transform](transform.md) - Scalers, encoders
 - [Drift](drift.md) - ADWIN, DDM, EDDM
 - [Metrics](metrics.md) - Accuracy, F1, MAE, etc.

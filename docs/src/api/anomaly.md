@@ -17,6 +17,15 @@ OnlineML.Anomaly.GaussianProjectionDetector
 `LODA` is retained as a compatibility alias. It does not currently implement
 the histogram-based LODA algorithm described by Pevný.
 
+## Random-cut forest approximation
+
+```@docs
+OnlineML.Anomaly.RandomCutForestApproximation
+```
+
+`RobustRandomCutForest` is retained as a compatibility alias. The current
+implementation is not a conforming geometric RRCF.
+
 ## Examples
 
 ```julia

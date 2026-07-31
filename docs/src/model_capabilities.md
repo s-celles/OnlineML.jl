@@ -139,7 +139,7 @@ explicit prediction-aggregation and checkpoint protocol.
 |:--|:--|:--|:--|:--|:--|
 | `HalfSpaceTrees` | Yes, stochastic | No | Fixed trees and depth | Normalized to `[0, 1]` | Lifecycle qualified |
 | `GaussianProjectionDetector` (`LODA` alias) | Yes, stochastic | No | Projections × features | Normalized to `[0, 1]` | Lifecycle qualified Gaussian approximation |
-| `RobustRandomCutForest` | Yes, stochastic | No | Trees × `tree_size` | Raw codisplacement of retained points | Experimental approximation |
+| `RandomCutForestApproximation` (`RobustRandomCutForest` alias) | Yes, stochastic | No | Trees × `tree_size` | Raw tree score of retained points | Non-conforming approximation |
 
 The assertions in `test/contract/test_anomaly_capabilities.jl` verify
 constructor and fixed-schema constraints, one-pass delta consumption,
@@ -151,11 +151,12 @@ rewind an RNG stream.
 variance. The legacy `LODA` binding is only a compatibility alias; it does not
 claim conformance with LODA's sparse projections, adaptive histogram density
 estimator, or log-density score.
-`RobustRandomCutForest.score` can only score a point retained in its sliding
-window; callers must use `fit_score!` to insert and then score a new point.
-The current random-cut-tree implementation has not been independently
-qualified for algorithmic equivalence to RRCF. These limitations are part of
-the public maturity statement, not capabilities suitable for generic traits.
+`RandomCutForestApproximation.score` can only score a point retained in its
+sliding window and throws for an absent point; callers must use `fit_score!` to
+insert and then score a new point. Its leaves do not retain point coordinates,
+insertion does not implement the geometric RRCT construction, and its score is
+not independently qualified as RRCF codisplacement. The historical
+`RobustRandomCutForest` binding is only a compatibility alias.
 
 Anomaly-detector states are order-sensitive and expose no mathematically valid
 merge. Distributed execution therefore requires single-owner partitioning or

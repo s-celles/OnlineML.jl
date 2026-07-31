@@ -1,6 +1,6 @@
 using Random
 using OnlineML.Anomaly: GaussianProjectionDetector, HalfSpaceTrees, LODA,
-    RobustRandomCutForest,
+    RandomCutForestApproximation, RobustRandomCutForest,
     current_size, fit_score!
 
 @testset "constructor and schema constraints" begin
@@ -11,11 +11,12 @@ using OnlineML.Anomaly: GaussianProjectionDetector, HalfSpaceTrees, LODA,
     @test LODA === GaussianProjectionDetector
     @test_throws ArgumentError RobustRandomCutForest(n_trees=0)
     @test_throws ArgumentError RobustRandomCutForest(tree_size=0)
+    @test RobustRandomCutForest === RandomCutForestApproximation
 
     for model in (
         HalfSpaceTrees(n_trees=2, height=2, rng=MersenneTwister(1)),
         GaussianProjectionDetector(n_projections=2, rng=MersenneTwister(1)),
-        RobustRandomCutForest(n_trees=2, tree_size=3, seed=1),
+        RandomCutForestApproximation(n_trees=2, tree_size=3, seed=1),
     )
         fit!(model, [1.0, 2.0])
         @test_throws DimensionMismatch fit!(model, [1.0])
@@ -27,7 +28,7 @@ end
     models = (
         HalfSpaceTrees(n_trees=2, height=2, window_size=3, rng=MersenneTwister(2)),
         GaussianProjectionDetector(n_projections=2, rng=MersenneTwister(2)),
-        RobustRandomCutForest(n_trees=2, tree_size=3, seed=2),
+        RandomCutForestApproximation(n_trees=2, tree_size=3, seed=2),
     )
 
     for model in models
@@ -37,7 +38,7 @@ end
         fit_batch!(model, (x for x in ([3.0, 3.0],)))
         @test nobs(model) == 4
 
-        probe = model isa RobustRandomCutForest ? [3.0, 3.0] : [1.0, 1.0]
+        probe = model isa RandomCutForestApproximation ? [3.0, 3.0] : [1.0, 1.0]
         before = nobs(model)
         result = score_one(model, probe)
         @test isfinite(result)
@@ -58,11 +59,12 @@ end
     @test length(loda.projections) == 4
     @test length(loda.stats) == 4
 
-    rrcf = RobustRandomCutForest(n_trees=3, tree_size=4, seed=3)
+    rrcf = RandomCutForestApproximation(n_trees=3, tree_size=4, seed=3)
     scores = [fit_score!(rrcf, [Float64(i), 0.0]) for i in 1:10]
     @test all(isfinite, scores)
     @test current_size(rrcf) == 4
     @test all(tree.n_points == 4 for tree in rrcf.trees)
+    @test_throws ArgumentError score_one(rrcf, [-1.0, 0.0])
 end
 
 @testset "deterministic construction with explicit RNG state" begin

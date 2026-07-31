@@ -7,7 +7,8 @@ Online anomaly detection algorithms.
 - `HalfSpaceTrees` - Half-Space Trees for streaming anomaly detection
 - `GaussianProjectionDetector` - Gaussian random-projection detector
 - `LODA` - Compatibility alias for `GaussianProjectionDetector`
-- `RobustRandomCutForest` - RRCF for streaming anomaly detection
+- `RandomCutForestApproximation` - Experimental random-cut approximation
+- `RobustRandomCutForest` - Compatibility alias
 """
 module Anomaly
 
@@ -23,6 +24,7 @@ include("loda.jl")
 include("cut_tree.jl")
 include("rrcf.jl")
 
-export HalfSpaceTrees, GaussianProjectionDetector, LODA, RobustRandomCutForest
+export HalfSpaceTrees, GaussianProjectionDetector, LODA
+export RandomCutForestApproximation, RobustRandomCutForest
 
 end # module Anomaly

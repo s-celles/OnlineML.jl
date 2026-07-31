@@ -7,6 +7,8 @@ using .Anomaly: RobustRandomCutForest
 using Random
 
 @testset "RobustRandomCutForest" begin
+    rng = MersenneTwister(42)
+
     @testset "Constructor and defaults" begin
         rrcf = RobustRandomCutForest()
         @test rrcf isa RobustRandomCutForest
@@ -30,7 +32,7 @@ using Random
         rrcf = RobustRandomCutForest(n_trees=10, tree_size=50)
 
         for i in 1:30
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         @test nobs(rrcf) == 30
@@ -42,7 +44,7 @@ using Random
 
         # Fill beyond capacity
         for i in 1:30
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         @test nobs(rrcf) == 30
@@ -53,7 +55,7 @@ using Random
         rrcf = RobustRandomCutForest(n_trees=10, tree_size=50)
 
         for i in 1:20
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         @test nobs(rrcf) == 20
@@ -79,12 +81,11 @@ using Random
     end
 
     @testset "Anomaly detection" begin
-        Random.seed!(42)
         rrcf = RobustRandomCutForest(n_trees=50, tree_size=100, seed=42)
 
         # Train on normal data
         for i in 1:80
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         # Insert an outlier
@@ -92,7 +93,7 @@ using Random
         outlier_score = fit_score!(rrcf, outlier)
 
         # Insert a normal point
-        normal = randn(3)
+        normal = randn(rng, 3)
         normal_score = fit_score!(rrcf, normal)
 
         # Outlier should generally have higher score
@@ -106,7 +107,7 @@ using Random
 
         # Train on normal data
         for i in 1:40
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         # Test with a normal point
@@ -154,7 +155,7 @@ using Random
         @test Anomaly.current_size(rrcf) == 0
 
         for i in 1:10
-            fit!(rrcf, randn(3))
+            fit!(rrcf, randn(rng, 3))
         end
 
         @test Anomaly.current_size(rrcf) == 10
