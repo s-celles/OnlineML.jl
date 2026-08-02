@@ -4,6 +4,7 @@ using OnlineML.Ensemble:
     AdaptiveRandomForest,
     Bagging,
     DriftAwareBagging,
+    HighRatePoissonBagging,
     LeveragingBagging,
     per_learner_drifts,
     per_tree_drifts
@@ -52,7 +53,7 @@ OnlineML.predict_proba(learner::LastLabelLearner, _) =
 OnlineML.reset!(learner::LastLabelLearner) =
     (learner.label = 0; learner.n = 0; learner)
 
-learned_observations(ensemble::Union{Bagging,LeveragingBagging}) =
+learned_observations(ensemble::Union{Bagging,HighRatePoissonBagging}) =
     sum(nobs, ensemble.learners)
 learned_observations(ensemble::DriftAwareBagging) =
     sum(estimator -> nobs(estimator.model), ensemble.estimators)
@@ -63,10 +64,10 @@ learned_observations(ensemble::DriftAwareBagging) =
 
     for factory in (
         () -> Bagging(base; n_estimators=0),
-        () -> LeveragingBagging(base; n_estimators=0),
+        () -> HighRatePoissonBagging(base; n_estimators=0),
         () -> DriftAwareBagging(base, detector; n_estimators=0),
         () -> Bagging(base; lambda=0.0),
-        () -> LeveragingBagging(base; lambda=-1.0),
+        () -> HighRatePoissonBagging(base; lambda=-1.0),
         () -> DriftAwareBagging(base, detector; lambda=Inf),
     )
         @test_throws ArgumentError factory()
@@ -86,7 +87,7 @@ end
             n_estimators=3,
             rng=MersenneTwister(11),
         ),
-        () -> LeveragingBagging(
+        () -> HighRatePoissonBagging(
             () -> LogisticRegression();
             n_estimators=3,
             rng=MersenneTwister(11),
@@ -119,13 +120,17 @@ end
 @testset "probabilities ignore untrained contributors" begin
     for factory in (
         () -> Bagging(() -> LastLabelLearner(0, 0); n_estimators=3),
-        () -> LeveragingBagging(() -> LastLabelLearner(0, 0); n_estimators=3),
+        () -> HighRatePoissonBagging(() -> LastLabelLearner(0, 0); n_estimators=3),
     )
         ensemble = factory()
         fit!(first(ensemble.learners), ([1.0], 1))
         ensemble.n = 1
         @test OnlineML.predict_proba(ensemble, [1.0]) == Dict(1 => 1.0)
     end
+end
+
+@testset "historical leveraging name is a compatibility alias" begin
+    @test LeveragingBagging === HighRatePoissonBagging
 end
 
 @testset "ARF drift error is test-then-train" begin

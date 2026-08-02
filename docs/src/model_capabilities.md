@@ -114,7 +114,7 @@ original event order.
 | Ensemble | Order-sensitive | Mergeable state | Memory bound | Drift adaptation | Maturity |
 |:--|:--|:--|:--|:--|:--|
 | `Bagging` | Yes, stochastic | No | Depends on base learners | No | Lifecycle qualified |
-| `LeveragingBagging` | Yes, stochastic | No | Depends on base learners | No | Poisson-resampling approximation |
+| `HighRatePoissonBagging` (`LeveragingBagging` alias) | Yes, stochastic | No | Depends on base learners | No | Lifecycle-qualified Poisson resampling; not Leveraging Bagging |
 | `DriftAwareBagging` (`AdaptiveRandomForest` alias) | Yes, stochastic | No | Depends on base learners and background models | Yes | Lifecycle qualified; not ARF |
 
 The assertions in `test/contract/test_ensemble_capabilities.jl` verify
@@ -124,8 +124,11 @@ test-then-train errors for drift detectors. Supplying independent RNG instances
 with identical initial states gives reproducible stochastic updates. `reset!`
 clears learned models and counters but does not rewind the RNG stream.
 
-`LeveragingBagging` currently implements higher-rate Poisson resampling but not
-the complete family of leveraging-bagging strategies. `DriftAwareBagging` adds
+`HighRatePoissonBagging` implements higher-rate Poisson resampling but not
+the random output codes, per-learner ADWIN detectors, or worst-learner
+replacement of Leveraging Bagging. The historical `LeveragingBagging` name is
+retained as an alias and must not be interpreted as algorithmic conformance.
+`DriftAwareBagging` adds
 per-estimator detectors and background-model replacement, but it does not
 implement random feature subspaces. The historical `AdaptiveRandomForest` name
 is retained as an alias and must not be interpreted as full algorithmic

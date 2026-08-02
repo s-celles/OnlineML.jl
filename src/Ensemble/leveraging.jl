@@ -1,13 +1,15 @@
-# Leveraging Bagging - Enhanced online bagging
+# High-rate Poisson bagging
 
 """
-    LeveragingBagging{L} <: Learner{AbstractVector, Any}
+    HighRatePoissonBagging{L} <: Learner{AbstractVector, Any}
 
-Leveraging Bagging ensemble with configurable lambda.
+Online bagging ensemble with a configurable Poisson resampling rate.
 
-An enhanced version of online bagging that uses higher Poisson
-resampling rates (λ > 1) to increase diversity among base learners.
-The default λ=6 has been shown to improve performance.
+This implementation only provides the higher-rate Poisson resampling component
+associated with leveraging bagging. It does not implement random output codes,
+per-learner ADWIN detectors, or replacement of the worst learner after drift,
+and therefore does not claim conformance with the full Leveraging Bagging
+algorithm.
 
 # Parameters
 - `base_learner` - A callable that creates a new learner instance
@@ -16,8 +18,8 @@ The default λ=6 has been shown to improve performance.
 
 # Example
 ```jldoctest
-julia> ensemble = LeveragingBagging(() -> HoeffdingTree(), n_estimators=3)
-LeveragingBagging: n=0 | value=HoeffdingTree{Float64}[HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0)]
+julia> ensemble = HighRatePoissonBagging(() -> HoeffdingTree(), n_estimators=3)
+HighRatePoissonBagging: n=0 | value=HoeffdingTree{Float64}[HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0), HoeffdingTree: n=0 | value=LeafNode{Float64}(Dict{Int64, SufficientStats{Float64}}(), CountMap: n=0 | value=OrderedDict{Int64, Int64}(), 0, 0)]
 
 julia> fit!(ensemble, ([1.0, 2.0], 1));
 
@@ -30,14 +32,14 @@ Bifet, A., Holmes, G., & Pfahringer, B. (2010). Leveraging bagging for
 evolving data streams. In Joint European conference on machine learning
 and knowledge discovery in databases (pp. 135-150).
 """
-mutable struct LeveragingBagging{L} <: Learner{AbstractVector, Any}
+mutable struct HighRatePoissonBagging{L} <: Learner{AbstractVector, Any}
     learners::Vector{L}
     n_estimators::Int
     lambda::Float64
     n::Int
     rng::Random.AbstractRNG
 
-    function LeveragingBagging(
+    function HighRatePoissonBagging(
         base_learner;
         n_estimators::Int = 10,
         lambda::Float64 = 6.0,
@@ -53,11 +55,10 @@ mutable struct LeveragingBagging{L} <: Learner{AbstractVector, Any}
 end
 
 # OnlineStatsBase interface
-function OnlineStatsBase._fit!(lb::LeveragingBagging, xy::Tuple)
+function OnlineStatsBase._fit!(lb::HighRatePoissonBagging, xy::Tuple)
     x, y = xy
 
     for learner in lb.learners
-        # Leveraging uses Poisson with λ > 1 for more diversity
         k = rand(lb.rng, Poisson(lb.lambda))
         for _ in 1:k
             fit!(learner, (x, y))
@@ -68,10 +69,10 @@ function OnlineStatsBase._fit!(lb::LeveragingBagging, xy::Tuple)
     return lb
 end
 
-OnlineStatsBase.value(lb::LeveragingBagging) = lb.learners
-OnlineStatsBase.nobs(lb::LeveragingBagging) = lb.n
+OnlineStatsBase.value(lb::HighRatePoissonBagging) = lb.learners
+OnlineStatsBase.nobs(lb::HighRatePoissonBagging) = lb.n
 
-function reset!(lb::LeveragingBagging)
+function reset!(lb::HighRatePoissonBagging)
     for learner in lb.learners
         reset!(learner)
     end
@@ -80,7 +81,7 @@ function reset!(lb::LeveragingBagging)
 end
 
 # Learner interface - majority voting
-function predict(lb::LeveragingBagging, x)
+function predict(lb::HighRatePoissonBagging, x)
     if lb.n == 0
         return 0
     end
@@ -95,7 +96,7 @@ function predict(lb::LeveragingBagging, x)
 end
 
 # Averaged probability predictions
-function predict_proba(lb::LeveragingBagging, x)
+function predict_proba(lb::HighRatePoissonBagging, x)
     if lb.n == 0
         return Dict{Any, Float64}()
     end
@@ -121,3 +122,11 @@ function predict_proba(lb::LeveragingBagging, x)
 
     return probs
 end
+
+"""
+    LeveragingBagging
+
+Compatibility alias for [`HighRatePoissonBagging`](@ref). The alias does not
+imply conformance with the full Leveraging Bagging algorithm.
+"""
+const LeveragingBagging = HighRatePoissonBagging

@@ -14,7 +14,7 @@ DocMeta.setdocmeta!(OnlineML, :DocTestSetup, quote
     using OnlineML.Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
     using OnlineML.Drift: ADWIN, DDM, EDDM, KSWIN, PageHinkley, status
     using OnlineML.Anomaly: HalfSpaceTrees
-    using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, DriftAwareBagging, LeveragingBagging
+    using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, DriftAwareBagging, HighRatePoissonBagging, LeveragingBagging
     using OnlineML.Pipeline: OnlinePipeline
     using OnlineML.Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
     using OnlineML.Optim: Adam, Descent, Momentum

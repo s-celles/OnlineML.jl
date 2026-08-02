@@ -14,11 +14,15 @@ OnlineML.Ensemble.Bagging
 OnlineML.Ensemble.DriftAwareBagging
 ```
 
-## Leveraging Bagging
+## High-Rate Poisson Bagging
 
 ```@docs
-OnlineML.Ensemble.LeveragingBagging
+OnlineML.Ensemble.HighRatePoissonBagging
 ```
+
+`LeveragingBagging` is retained as a compatibility alias. The implementation
+does not include the drift detection and output-code components of the full
+Leveraging Bagging algorithm.
 
 ## Examples
 

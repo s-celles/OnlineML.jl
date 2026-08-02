@@ -153,7 +153,7 @@ using Documenter
             using .Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
             using .Drift: ADWIN, DDM, EDDM, PageHinkley, KSWIN, status
             using .Anomaly: HalfSpaceTrees, RandomCutForestApproximation, RobustRandomCutForest
-            using .Ensemble: AdaptiveRandomForest, Bagging, DriftAwareBagging, LeveragingBagging
+            using .Ensemble: AdaptiveRandomForest, Bagging, DriftAwareBagging, HighRatePoissonBagging, LeveragingBagging
             using .Pipeline: OnlinePipeline
             using .Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
             using .Optim: Adam, Descent, Momentum

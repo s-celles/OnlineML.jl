@@ -5,7 +5,7 @@ Online ensemble methods for machine learning.
 
 # Exports
 - `Bagging` - Online bagging with Poisson resampling
-- `LeveragingBagging` - Enhanced bagging with higher λ
+- `HighRatePoissonBagging` - Bagging with a configurable Poisson rate
 - `DriftAwareBagging` - Poisson bagging with per-learner drift adaptation
 """
 module Ensemble
@@ -20,7 +20,7 @@ include("bagging.jl")
 include("leveraging.jl")
 include("arf.jl")
 
-export Bagging, LeveragingBagging
+export Bagging, HighRatePoissonBagging, LeveragingBagging
 export DriftAwareBagging, DriftAwareEstimator
 export AdaptiveRandomForest, ARFEstimator
 export total_drifts, per_learner_drifts, per_tree_drifts

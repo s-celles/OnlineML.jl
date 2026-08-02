@@ -34,7 +34,7 @@ y_pred = predict(model, x_new)
 
 - **Linear Models**: Regression, LogisticRegression, Perceptron, PassiveAggressive
 - **Trees**: HoeffdingTree (VFDT algorithm)
-- **Ensembles**: Bagging, AdaptiveRandomForest, LeveragingBagging
+- **Ensembles**: Bagging, DriftAwareBagging, HighRatePoissonBagging
 - **Instance-Based**: KNN with sliding window
 - **Naive Bayes**: GaussianNB, MultinomialNB, BernoulliNB
 - **Clustering**: KMeans, DenStream
