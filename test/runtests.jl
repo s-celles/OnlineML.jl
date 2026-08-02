@@ -122,7 +122,10 @@ using Documenter
     @testset "Integration: LearnAPI extension" begin
         include("integration/test_learnapi.jl")
     end
-    # include("integration/test_mlj.jl")
+
+    @testset "Integration: MLJ extension" begin
+        include("integration/test_mlj.jl")
+    end
 
     # NamedTuple input tests (Feature 002)
     @testset "NamedTuple Input" begin
@@ -158,7 +161,7 @@ using Documenter
             using .Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
             using .Optim: Adam, Descent, Momentum
             using Random
-            using DataFrames
+            import DataFrames
         end; recursive=true)
         Documenter.doctest(OnlineML)
     end

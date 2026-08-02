@@ -3,7 +3,7 @@
 
 MLJ.jl integration extension for OnlineML.
 
-This extension provides MLJ-compatible wrappers for OnlineML learners,
+This extension provides MLJ-compatible model interfaces for OnlineML learners,
 enabling them to be used within the MLJ ecosystem.
 
 # Usage
@@ -25,19 +25,16 @@ predict(mach, X_new)
 - `OnlinePerceptron` - Wraps OnlineML.Linear.Perceptron
 - `OnlineNaiveBayes` - Wraps OnlineML.Bayes.GaussianNB
 - `OnlineHoeffdingTree` - Wraps OnlineML.Trees.HoeffdingTree
-- `OnlineKNN` - Wraps OnlineML.Instance.KNNClassifier
+- `OnlineKNNClassifier` - Interfaces OnlineML.Instance.KNN
 """
 module OnlineMLMLJExt
 
-using MLJBase
-import MLJBase: fit, predict, fitted_params, package_name, package_uuid,
-                is_wrapper, supports_weights, load_path, package_url,
-                package_license
-using OnlineML
+import MLJBase
+import OnlineML
 using OnlineML.Linear: LogisticRegression, Perceptron
 using OnlineML.Bayes: GaussianNB
 using OnlineML.Trees: HoeffdingTree
-using OnlineML.Instance: KNNClassifier
+using OnlineML.Instance: KNN
 
 # =============================================================================
 # Abstract Types
@@ -104,9 +101,46 @@ end
 # Fitted State
 # =============================================================================
 
-mutable struct OnlineMLFitResult{M}
+struct OnlineMLFitResult{M,C<:AbstractVector}
     model::M
-    classes::Vector
+    classes::C
+end
+
+function _target_metadata(y; binary::Bool=false)
+    isempty(y) && throw(ArgumentError("the target must contain at least one observation"))
+    classes = collect(MLJBase.classes(first(y)))
+    binary && length(classes) != 2 &&
+        throw(ArgumentError("this OnlineML learner supports exactly two classes"))
+    encoded = Int.(MLJBase.int(y))
+    binary && (encoded .-= 1)
+    return classes, encoded
+end
+
+function _fit_batch!(learner, X, y)
+    Xmat = MLJBase.matrix(X)
+    size(Xmat, 1) == length(y) ||
+        throw(DimensionMismatch("X and y have different numbers of observations"))
+    for i in axes(Xmat, 1)
+        OnlineML.fit!(learner, (view(Xmat, i, :), y[i]))
+    end
+    return learner
+end
+
+_uses_binary_encoding(::Union{OnlineLogisticRegression,OnlinePerceptronClassifier}) = true
+_uses_binary_encoding(::OnlineMLModel) = false
+_uses_binary_encoding(::OnlineDeterministic) = false
+
+function _encode_delta(model, fitresult::OnlineMLFitResult, ynew)
+    offset = _uses_binary_encoding(model) ? 1 : 0
+    encoded = Vector{Int}(undef, length(ynew))
+    for i in eachindex(ynew)
+        class_index = findfirst(==(ynew[i]), fitresult.classes)
+        class_index === nothing && throw(ArgumentError(
+            "new class $(repr(ynew[i])) is not in the fitted target pool",
+        ))
+        encoded[i] = class_index - offset
+    end
+    return encoded
 end
 
 # =============================================================================
@@ -117,58 +151,59 @@ for T in (OnlineLogisticRegression, OnlinePerceptronClassifier, OnlineNaiveBayes
           OnlineHoeffdingTreeClassifier, OnlineKNNClassifier)
     @eval begin
         MLJBase.package_name(::Type{<:$T}) = "OnlineML"
-        MLJBase.package_uuid(::Type{<:$T}) = "e8b0a8b0-0001-4000-8000-000000000001"
-        MLJBase.package_url(::Type{<:$T}) = "https://github.com/OnlineML/OnlineML.jl"
+        MLJBase.package_uuid(::Type{<:$T}) = "e06e4760-77c8-4553-90da-06185c08ed2e"
+        MLJBase.package_url(::Type{<:$T}) = "https://github.com/s-celles/OnlineML.jl"
         MLJBase.package_license(::Type{<:$T}) = "MIT"
         MLJBase.is_wrapper(::Type{<:$T}) = false
         MLJBase.supports_weights(::Type{<:$T}) = false
     end
 end
 
-MLJBase.load_path(::Type{<:OnlineLogisticRegression}) = "OnlineML.Linear.LogisticRegression"
-MLJBase.load_path(::Type{<:OnlinePerceptronClassifier}) = "OnlineML.Linear.Perceptron"
-MLJBase.load_path(::Type{<:OnlineNaiveBayes}) = "OnlineML.Bayes.GaussianNB"
-MLJBase.load_path(::Type{<:OnlineHoeffdingTreeClassifier}) = "OnlineML.Trees.HoeffdingTree"
-MLJBase.load_path(::Type{<:OnlineKNNClassifier}) = "OnlineML.Instance.KNNClassifier"
+MLJBase.load_path(::Type{<:OnlineLogisticRegression}) = "OnlineMLMLJExt.OnlineLogisticRegression"
+MLJBase.load_path(::Type{<:OnlinePerceptronClassifier}) = "OnlineMLMLJExt.OnlinePerceptronClassifier"
+MLJBase.load_path(::Type{<:OnlineNaiveBayes}) = "OnlineMLMLJExt.OnlineNaiveBayes"
+MLJBase.load_path(::Type{<:OnlineHoeffdingTreeClassifier}) = "OnlineMLMLJExt.OnlineHoeffdingTreeClassifier"
+MLJBase.load_path(::Type{<:OnlineKNNClassifier}) = "OnlineMLMLJExt.OnlineKNNClassifier"
+
+for T in (OnlineLogisticRegression, OnlinePerceptronClassifier)
+    @eval begin
+        MLJBase.input_scitype(::Type{<:$T}) = MLJBase.Table(MLJBase.Continuous)
+        MLJBase.target_scitype(::Type{<:$T}) = AbstractVector{<:MLJBase.Binary}
+    end
+end
+
+for T in (OnlineNaiveBayes, OnlineHoeffdingTreeClassifier, OnlineKNNClassifier)
+    @eval begin
+        MLJBase.input_scitype(::Type{<:$T}) = MLJBase.Table(MLJBase.Continuous)
+        MLJBase.target_scitype(::Type{<:$T}) = AbstractVector{<:MLJBase.Finite}
+    end
+end
 
 # =============================================================================
 # MLJBase Interface - fit
 # =============================================================================
 
 function MLJBase.fit(model::OnlineLogisticRegression, verbosity::Int, X, y)
-    learner = LogisticRegression(lr=model.learning_rate, lambda=model.regularization)
-    classes = sort(unique(y))
-
-    # Online training - fit each sample
-    Xmat = MLJBase.matrix(X)
-    for i in 1:size(Xmat, 1)
-        OnlineML.fit!(learner, (Xmat[i, :], y[i]))
-    end
-
+    learner = LogisticRegression(
+        optimizer=OnlineML.Optim.Adam(model.learning_rate),
+        l2=model.regularization,
+    )
+    classes, encoded = _target_metadata(y; binary=true)
+    _fit_batch!(learner, X, encoded)
     return OnlineMLFitResult(learner, classes), nothing, nothing
 end
 
 function MLJBase.fit(model::OnlinePerceptronClassifier, verbosity::Int, X, y)
-    learner = Perceptron(lr=model.learning_rate)
-    classes = sort(unique(y))
-
-    Xmat = MLJBase.matrix(X)
-    for i in 1:size(Xmat, 1)
-        OnlineML.fit!(learner, (Xmat[i, :], y[i]))
-    end
-
+    learner = Perceptron(η=model.learning_rate)
+    classes, encoded = _target_metadata(y; binary=true)
+    _fit_batch!(learner, X, encoded)
     return OnlineMLFitResult(learner, classes), nothing, nothing
 end
 
 function MLJBase.fit(model::OnlineNaiveBayes, verbosity::Int, X, y)
     learner = GaussianNB()
-    classes = sort(unique(y))
-
-    Xmat = MLJBase.matrix(X)
-    for i in 1:size(Xmat, 1)
-        OnlineML.fit!(learner, (Xmat[i, :], y[i]))
-    end
-
+    classes, encoded = _target_metadata(y)
+    _fit_batch!(learner, X, encoded)
     return OnlineMLFitResult(learner, classes), nothing, nothing
 end
 
@@ -179,26 +214,36 @@ function MLJBase.fit(model::OnlineHoeffdingTreeClassifier, verbosity::Int, X, y)
         delta=model.delta,
         max_depth=model.max_depth
     )
-    classes = sort(unique(y))
-
-    Xmat = MLJBase.matrix(X)
-    for i in 1:size(Xmat, 1)
-        OnlineML.fit!(learner, (Xmat[i, :], y[i]))
-    end
-
+    classes, encoded = _target_metadata(y)
+    _fit_batch!(learner, X, encoded)
     return OnlineMLFitResult(learner, classes), nothing, nothing
 end
 
 function MLJBase.fit(model::OnlineKNNClassifier, verbosity::Int, X, y)
-    learner = KNNClassifier(k=model.k, window_size=model.window_size)
-    classes = sort(unique(y))
-
-    Xmat = MLJBase.matrix(X)
-    for i in 1:size(Xmat, 1)
-        OnlineML.fit!(learner, (Xmat[i, :], y[i]))
-    end
-
+    learner = KNN(k=model.k, window_size=model.window_size)
+    classes, encoded = _target_metadata(y)
+    _fit_batch!(learner, X, encoded)
     return OnlineMLFitResult(learner, classes), nothing, nothing
+end
+
+"""
+    update_observations!(model, fitresult, Xnew, ynew)
+
+Consume only the new observations in `Xnew` and `ynew`, preserving the fitted
+OnlineML learner state. All target classes are validated before training starts.
+
+This operation is deliberately distinct from `MLJBase.update`, whose data
+arguments represent the machine's complete training data rather than a delta.
+"""
+function update_observations!(
+    model::Union{OnlineMLModel,OnlineDeterministic},
+    fitresult::OnlineMLFitResult,
+    Xnew,
+    ynew,
+)
+    encoded = _encode_delta(model, fitresult, ynew)
+    _fit_batch!(fitresult.model, Xnew, encoded)
+    return fitresult
 end
 
 # =============================================================================
@@ -210,15 +255,14 @@ function MLJBase.predict(model::OnlineLogisticRegression, fitresult::OnlineMLFit
     classes = fitresult.classes
     Xmat = MLJBase.matrix(Xnew)
 
-    preds = Vector{MLJBase.UnivariateFinite}(undef, size(Xmat, 1))
+    probs = Matrix{Float64}(undef, size(Xmat, 1), length(classes))
     for i in 1:size(Xmat, 1)
-        probs = OnlineML.predict_proba(learner, Xmat[i, :])
-        # Convert to probability vector matching classes order
-        prob_vec = [get(probs, c, 0.0) for c in classes]
-        preds[i] = MLJBase.UnivariateFinite(classes, prob_vec)
+        prediction = OnlineML.predict_proba(learner, view(Xmat, i, :))
+        for j in eachindex(classes)
+            probs[i, j] = get(prediction, j - 1, 0.0)
+        end
     end
-
-    return preds
+    return MLJBase.UnivariateFinite(classes, probs)
 end
 
 function MLJBase.predict(model::OnlineNaiveBayes, fitresult::OnlineMLFitResult, Xnew)
@@ -226,14 +270,14 @@ function MLJBase.predict(model::OnlineNaiveBayes, fitresult::OnlineMLFitResult, 
     classes = fitresult.classes
     Xmat = MLJBase.matrix(Xnew)
 
-    preds = Vector{MLJBase.UnivariateFinite}(undef, size(Xmat, 1))
+    probs = Matrix{Float64}(undef, size(Xmat, 1), length(classes))
     for i in 1:size(Xmat, 1)
-        probs = OnlineML.predict_proba(learner, Xmat[i, :])
-        prob_vec = [get(probs, c, 0.0) for c in classes]
-        preds[i] = MLJBase.UnivariateFinite(classes, prob_vec)
+        prediction = OnlineML.predict_proba(learner, view(Xmat, i, :))
+        for j in eachindex(classes)
+            probs[i, j] = get(prediction, j, 0.0)
+        end
     end
-
-    return preds
+    return MLJBase.UnivariateFinite(classes, probs)
 end
 
 # Deterministic predictions
@@ -243,7 +287,7 @@ function MLJBase.predict(model::OnlinePerceptronClassifier, fitresult::OnlineMLF
 
     preds = Vector{eltype(fitresult.classes)}(undef, size(Xmat, 1))
     for i in 1:size(Xmat, 1)
-        preds[i] = OnlineML.predict(learner, Xmat[i, :])
+        preds[i] = fitresult.classes[OnlineML.predict(learner, view(Xmat, i, :)) + 1]
     end
 
     return preds
@@ -253,9 +297,9 @@ function MLJBase.predict(model::OnlineHoeffdingTreeClassifier, fitresult::Online
     learner = fitresult.model
     Xmat = MLJBase.matrix(Xnew)
 
-    preds = Vector{Any}(undef, size(Xmat, 1))
+    preds = Vector{eltype(fitresult.classes)}(undef, size(Xmat, 1))
     for i in 1:size(Xmat, 1)
-        preds[i] = OnlineML.predict(learner, Xmat[i, :])
+        preds[i] = fitresult.classes[OnlineML.predict(learner, view(Xmat, i, :))]
     end
 
     return preds
@@ -265,9 +309,9 @@ function MLJBase.predict(model::OnlineKNNClassifier, fitresult::OnlineMLFitResul
     learner = fitresult.model
     Xmat = MLJBase.matrix(Xnew)
 
-    preds = Vector{Any}(undef, size(Xmat, 1))
+    preds = Vector{eltype(fitresult.classes)}(undef, size(Xmat, 1))
     for i in 1:size(Xmat, 1)
-        preds[i] = OnlineML.predict(learner, Xmat[i, :])
+        preds[i] = fitresult.classes[OnlineML.predict(learner, view(Xmat, i, :))]
     end
 
     return preds
@@ -305,5 +349,6 @@ end
 
 export OnlineLogisticRegression, OnlinePerceptronClassifier, OnlineNaiveBayes
 export OnlineHoeffdingTreeClassifier, OnlineKNNClassifier
+export update_observations!
 
 end # module OnlineMLMLJExt

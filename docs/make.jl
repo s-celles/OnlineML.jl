@@ -7,19 +7,19 @@ DocMeta.setdocmeta!(OnlineML, :DocTestSetup, quote
     using OnlineML: fit!, predict, nobs, transform, fit_transform!, reset!, fit_predict!, iterate_table!
     using OnlineML.Linear: LogisticRegression, Perceptron, Regression, PassiveAggressive
     using OnlineML.Cluster: StreamingKMeans, centroids, cluster_sizes
-    using OnlineML.Transform: StandardScaler, MinMaxScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, MeanImputer, ModeImputer
-    using OnlineML.Trees: HoeffdingTree
+    using OnlineML.Transform: StandardScaler, MinMaxScaler, MaxAbsScaler, OneHotEncoder, OrdinalEncoder, TargetEncoder, MeanImputer, ModeImputer
+    using OnlineML.Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree
     using OnlineML.Bayes: GaussianNB, MultinomialNB, BernoulliNB
     using OnlineML.Instance: KNN
     using OnlineML.Metrics: Accuracy, Precision, Recall, F1Score, MAE, MSE, RMSE, R2
     using OnlineML.Drift: ADWIN, DDM, EDDM, KSWIN, PageHinkley, status
-    using OnlineML.Anomaly: HalfSpaceTrees
+    using OnlineML.Anomaly: HalfSpaceTrees, RandomCutForestApproximation, RobustRandomCutForest
     using OnlineML.Ensemble: AdaptiveRandomForest, Bagging, DriftAwareBagging, HighRatePoissonBagging, LeveragingBagging
     using OnlineML.Pipeline: OnlinePipeline
     using OnlineML.Streams: SEAGenerator, AgrawalGenerator, SineGenerator, RandomRBFGenerator, LEDGenerator, HyperplaneGenerator, ConceptDriftStream, DataStream, batch_stream, take_stream, skip_stream, generate
     using OnlineML.Optim: Adam, Descent, Momentum
     using Random
-    using DataFrames
+    import DataFrames
 end; recursive=true)
 
 makedocs(
@@ -35,6 +35,7 @@ makedocs(
         "Home" => "index.md",
         "Getting Started" => "getting_started.md",
         "Incremental Contract" => "incremental_contract.md",
+        "MLJ Integration" => "mlj_integration.md",
         "Model Capabilities" => "model_capabilities.md",
         "Migration from River" => "migration_from_river.md",
         "AI Transparency" => "ai_transparency.md",
