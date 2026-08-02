@@ -1,27 +1,29 @@
 using Test
 using OnlineML
+using Random: MersenneTwister
 import OnlineML: Trees
 using .Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree, n_nodes, height, n_leaves
 
 @testset "Decision Trees" begin
     @testset "HoeffdingTree" begin
+        rng = MersenneTwister(401)
         tree = HoeffdingTree()
         @test nobs(tree) == 0
 
         # Fit with some data
         for i in 1:100
-            x = randn(4)
-            y = rand([0, 1])
+            x = randn(rng, 4)
+            y = rand(rng, [0, 1])
             fit!(tree, (x, y))
         end
         @test nobs(tree) == 100
 
         # Predict
-        y_pred = predict(tree, randn(4))
+        y_pred = predict(tree, randn(rng, 4))
         @test y_pred in [0, 1]
 
         # Predict proba
-        probs = predict_proba(tree, randn(4))
+        probs = predict_proba(tree, randn(rng, 4))
         @test isa(probs, Dict)
         if !isempty(probs)
             @test all(0 <= v <= 1 for v in values(probs))
@@ -38,6 +40,7 @@ using .Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree, n_nodes, 
     end
 
     @testset "HoeffdingTree with parameters" begin
+        rng = MersenneTwister(402)
         # Test with custom parameters
         tree = HoeffdingTree(
             grace_period=50,
@@ -47,7 +50,7 @@ using .Trees: HoeffdingTree, ExtremelyFastTree, HoeffdingAdaptiveTree, n_nodes, 
         )
 
         for i in 1:200
-            x = randn(3)
+            x = randn(rng, 3)
             y = x[1] > 0 ? 1 : 0  # Simple split on first feature
             fit!(tree, (x, y))
         end

@@ -1,27 +1,29 @@
 using Test
 using OnlineML
+using Random: MersenneTwister
 import OnlineML: Instance
 using .Instance: KNN
 
 @testset "Instance-Based Models" begin
     @testset "KNN" begin
+        rng = MersenneTwister(301)
         knn = KNN(k=5)
         @test nobs(knn) == 0
 
         # Fit with some data
         for i in 1:50
-            x = randn(4)
-            y = rand([0, 1])
+            x = randn(rng, 4)
+            y = rand(rng, [0, 1])
             fit!(knn, (x, y))
         end
         @test nobs(knn) == 50
 
         # Predict
-        y_pred = predict(knn, randn(4))
+        y_pred = predict(knn, randn(rng, 4))
         @test y_pred in [0, 1]
 
         # Predict proba
-        probs = predict_proba(knn, randn(4))
+        probs = predict_proba(knn, randn(rng, 4))
         @test isa(probs, Dict)
         if !isempty(probs)
             @test all(0 <= v <= 1 for v in values(probs))
@@ -33,12 +35,13 @@ using .Instance: KNN
     end
 
     @testset "KNN with window_size" begin
+        rng = MersenneTwister(302)
         knn = KNN(k=3, window_size=20)
 
         # Add more than window size
         for i in 1:50
-            x = randn(3)
-            y = rand([0, 1])
+            x = randn(rng, 3)
+            y = rand(rng, [0, 1])
             fit!(knn, (x, y))
         end
 
@@ -49,17 +52,18 @@ using .Instance: KNN
     end
 
     @testset "KNN correctly classifies simple data" begin
+        rng = MersenneTwister(303)
         knn = KNN(k=3, weighted=false)
 
         # Add clearly separable data
         # Class 0: points around origin
         for i in 1:20
-            fit!(knn, ([0.0, 0.0] .+ 0.1 * randn(2), 0))
+            fit!(knn, ([0.0, 0.0] .+ 0.1 * randn(rng, 2), 0))
         end
 
         # Class 1: points around (10, 10)
         for i in 1:20
-            fit!(knn, ([10.0, 10.0] .+ 0.1 * randn(2), 1))
+            fit!(knn, ([10.0, 10.0] .+ 0.1 * randn(rng, 2), 1))
         end
 
         # Test classification
