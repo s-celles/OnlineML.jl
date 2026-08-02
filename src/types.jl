@@ -453,9 +453,9 @@ Iterates through all rows, extracting features and target.
 
 # Example
 ```jldoctest
-julia> using DataFrames
+julia> import DataFrames
 
-julia> df = DataFrame(x1=[1.0, 2.0, 3.0], x2=[4.0, 5.0, 6.0], y=[0, 1, 0])
+julia> df = DataFrames.DataFrame(x1=[1.0, 2.0, 3.0], x2=[4.0, 5.0, 6.0], y=[0, 1, 0])
 3×3 DataFrame
  Row │ x1       x2       y
      │ Float64  Float64  Int64
@@ -500,9 +500,9 @@ Convenience method to fit an unsupervised learner on a Tables.jl source.
 julia> model = StreamingKMeans(k=3)
 StreamingKMeans: n=0 | value=Vector{Float64}[]
 
-julia> using DataFrames
+julia> import DataFrames
 
-julia> df = DataFrame(x1=[1.0, 2.0, 3.0], x2=[4.0, 5.0, 6.0])
+julia> df = DataFrames.DataFrame(x1=[1.0, 2.0, 3.0], x2=[4.0, 5.0, 6.0])
 3×2 DataFrame
  Row │ x1       x2
      │ Float64  Float64
